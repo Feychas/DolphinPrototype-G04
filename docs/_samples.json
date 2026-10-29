@@ -1,0 +1,226 @@
+{
+ "sampleInputs": {
+  "registration": {
+   "customerMode": "Existing",
+   "customerId": "CUS-02",
+   "plate": "DEMO-030",
+   "brand": "Toyota",
+   "model": "Yaris",
+   "year": 2021,
+   "size": "S",
+   "newCustomerAlternative": {
+    "name": "May Demo",
+    "phone": "09-0000-0003",
+    "viber": "",
+    "facebook": ""
+   }
+  },
+  "mainCheckIn": {
+   "vehicleId": "VEH-008",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag"
+  },
+  "extraWork": {
+   "version": 2,
+   "label": "Additional brake labour",
+   "serviceId": "SVC-BRAKE",
+   "quantity": 1,
+   "unitPriceMMK": 1000,
+   "newTotalMMK": 61000,
+   "approvalRequired": true
+  },
+  "customerSuppliedOil": {
+   "serviceId": "SVC-OIL",
+   "labourMMK": 15000,
+   "itemDescription": "Customer-supplied engine oil",
+   "quantity": 4,
+   "unit": "liter",
+   "shopChargeMMK": 0,
+   "shopStockDelta": 0
+  },
+  "supplierOrder": {
+   "supplierId": "SUP-01",
+   "itemId": "ITEM-BRAKE",
+   "quantity": 5,
+   "unitCostMMK": 12000,
+   "totalMMK": 60000,
+   "reference": "DEMO-PO-028"
+  },
+  "receiptStock": {
+   "supplierId": "SUP-01",
+   "itemId": "ITEM-BRAKE",
+   "quantity": 5,
+   "unitCostMMK": 12000,
+   "reference": "DEMO-DEL-028"
+  },
+  "stockCount": {
+   "itemId": "ITEM-BRAKE",
+   "counted": 4,
+   "reason": "One damaged item in demo count"
+  },
+  "cashPayment": {
+   "tenderedMMK": 100000,
+   "appliedMMK": 60000,
+   "changeMMK": 40000
+  },
+  "walletPayment": {
+   "method": "KBZPay",
+   "reference": "DEMO-KBZ-002",
+   "verified": true,
+   "amountMMK": 60000
+  },
+  "refund": {
+   "originalReceiptId": "RC-2026-0002",
+   "chargeAdjustmentMMK": -5000,
+   "paymentAdjustmentMMK": -5000,
+   "method": "Cash",
+   "reason": "Manager-approved sample overcharge correction"
+  },
+  "methodCorrection": {
+   "originalReceiptId": "RC-2026-0002",
+   "reverseMethod": "Cash",
+   "reverseMMK": -60000,
+   "newMethod": "KBZPay",
+   "newMMK": 60000,
+   "reference": "DEMO-KBZ-CORR",
+   "reason": "Recorded under wrong payment method"
+  },
+  "closing": {
+   "countedMMK": {
+    "Cash": 60000,
+    "KBZPay": 30000,
+    "WavePay": 19500
+   },
+   "expectedMMK": {
+    "Cash": 60000,
+    "KBZPay": 30000,
+    "WavePay": 20000
+   },
+   "differenceMMK": {
+    "Cash": 0,
+    "KBZPay": 0,
+    "WavePay": -500
+   },
+   "reason": "Sample discrepancy for review"
+  },
+  "manualDiscount": {
+   "serviceId": "SVC-BRAKE",
+   "regularMMK": 40000,
+   "managerPercent": 10,
+   "managerFinalMMK": 36000,
+   "ownerPercent": 15,
+   "ownerFinalMMK": 34000
+  },
+  "promotionAlternatives": [
+   {
+    "type": "fixed",
+    "value": 6500,
+    "size": "S",
+    "regularMMK": 18500,
+    "finalMMK": 12000
+   },
+   {
+    "type": "percent",
+    "value": 10,
+    "size": "S",
+    "regularMMK": 18500,
+    "finalMMK": 16650,
+    "roundedReceiptMMK": 16700
+   },
+   {
+    "type": "setPrice",
+    "value": 12000,
+    "size": "S",
+    "regularMMK": 18500,
+    "finalMMK": 12000
+   }
+  ],
+  "thresholdExamples": [
+   {
+    "repairSubtotalMMK": 50000,
+    "required": false
+   },
+   {
+    "repairSubtotalMMK": 50001,
+    "required": true
+   }
+  ],
+  "roundingExamples": [
+   {
+    "unroundedMMK": 60149,
+    "payableMMK": 60100,
+    "adjustmentMMK": -49
+   },
+   {
+    "unroundedMMK": 60150,
+    "payableMMK": 60200,
+    "adjustmentMMK": 50
+   }
+  ],
+  "bookingConflict": {
+   "vehicleId": "VEH-008",
+   "bayId": "BAY-1",
+   "startAt": "2026-10-28T11:30:00+06:30",
+   "endAt": "2026-10-28T12:30:00+06:30"
+  },
+  "bookingAdjacent": {
+   "vehicleId": "VEH-008",
+   "bayId": "BAY-1",
+   "startAt": "2026-10-28T12:00:00+06:30",
+   "endAt": "2026-10-28T13:00:00+06:30"
+  },
+  "noShowBoundaries": {
+   "bookingId": "BK-03",
+   "before": "2026-10-28T09:29:00+06:30",
+   "atBoundary": "2026-10-28T09:30:00+06:30",
+   "after": "2026-10-28T09:31:00+06:30"
+  },
+  "collectionBoundaries": {
+   "jobId": "JOB-2026-0007",
+   "exactlyThreeDays": "2026-10-27T10:00:00+06:30",
+   "overThreeDays": "2026-10-27T10:01:00+06:30"
+  },
+  "nextService": {
+   "date": "2026-11-28",
+   "mileageKm": 73000,
+   "note": "Explicit demonstration values; not a recommended service interval"
+  }
+ },
+ "expectedReports": {
+  "P14": {
+   "dateFrom": "2026-10-28",
+   "dateTo": "2026-10-28",
+   "receiptRevenueMMK": 60000,
+   "collectionsMMK": 60000,
+   "materialCostMMK": 12000,
+   "estimatedGrossProfitMMK": 48000,
+   "commissionTotalMMK": 4000,
+   "commissionPerStaffMMK": 2000,
+   "contributionAfterCommissionMMK": 44000,
+   "redoCount": 0
+  },
+  "P15": {
+   "receiptRevenueMMK": 60000,
+   "collectionsMMK": 60000,
+   "estimatedGrossProfit": "Incomplete",
+   "commission": "Not configured"
+  },
+  "P12": {
+   "receiptRevenueMMK": 110000,
+   "collectionsMMK": 110000,
+   "totalClosingDifferenceMMK": -500
+  }
+ },
+ "localization": {
+  "sourceProvided": [
+   "services[].nameMM"
+  ],
+  "missingTranslationPolicy": "Fallback to English per label; mark Myanmar preview as partial; never claim complete localization."
+ }
+}

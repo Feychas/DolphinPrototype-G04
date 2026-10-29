@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dolphin AutoTrack — internal workshop prototype</title>
+<meta name="description" content="Frontend-only prototype of the Dolphin AutoTrack internal workshop management system. Fictional demo data.">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar"></aside>
+
+    <div class="main">
+      <header class="topbar">
+        <button type="button" class="icon-btn menu-btn" id="menu-btn" aria-label="Open navigation" aria-expanded="false">
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <div class="spacer"></div>
+        <span class="demo-pill" title="All records in this prototype are fictional">Demo data</span>
+        <div class="lang-toggle" role="group" aria-label="Language preview">
+          <button type="button" id="lang-en" class="lang-active">EN</button>
+          <span class="lang-sep" aria-hidden="true">|</span>
+          <button type="button" id="lang-mm">MM</button>
+        </div>
+        <span class="avatar" aria-hidden="true">
+          <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+        </span>
+        <label class="sr-only" for="role-select">Demo role preview</label>
+        <select id="role-select" title="Demo role preview — not authentication"></select>
+        <button type="button" class="btn btn-secondary btn-sm" id="demo-controls-btn" aria-expanded="false" aria-controls="demo-panel">
+          Demo controls
+        </button>
+      </header>
+
+      <main class="content" id="content" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="demo-panel" hidden aria-label="Demo controls"></div>
+  <div id="modal-root" hidden></div>
+  <div id="toast-root" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/util.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/actions.js"></script>
+  <script src="js/act-bookings.js"></script>
+  <script src="js/act-catalogue.js"></script>
+  <script src="js/act-reminders.js"></script>
+  <script src="js/act-adjustments.js"></script>
+  <script src="js/act-closing.js"></script>
+  <script src="js/act-import.js"></script>
+  <script src="js/act-reports.js"></script>
+  <script src="js/act-settings.js"></script>
+  <script src="js/views/s01.js"></script>
+  <script src="js/views/s02.js"></script>
+  <script src="js/views/s03.js"></script>
+  <script src="js/views/s04.js"></script>
+  <script src="js/views/s05.js"></script>
+  <script src="js/views/s06.js"></script>
+  <script src="js/views/s07.js"></script>
+  <script src="js/views/s08.js"></script>
+  <script src="js/views/s09.js"></script>
+  <script src="js/views/s10.js"></script>
+  <script src="js/views/s11.js"></script>
+  <script src="js/views/s12.js"></script>
+  <script src="js/views/s13.js"></script>
+  <script src="js/views/s14.js"></script>
+  <script src="js/views/s15.js"></script>
+  <script src="js/views/s16.js"></script>
+  <script src="js/views/s17.js"></script>
+  <script src="js/views/s18.js"></script>
+  <script src="js/views/s19.js"></script>
+  <script src="js/views/s20.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

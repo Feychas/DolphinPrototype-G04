@@ -1,0 +1,30 @@
+PASS  O1 registering a new customer and vehicle adds one of each  — {"customers":3,"vehicles":5,"plate":1,"cust":1}
+PASS  O2 a registration with a missing name and a duplicate plate is refused with reasons  — {"err":"Customer name is required. | Phone is required. | This plate is already registered (DEMO-008).","counts":{"c":2,"v":4}}
+PASS  P1 a supplier can be created with a name and a contact note  — {"n":3,"made":1}
+PASS  P2 a supplier can be archived and the record is kept  — {"buttons":3,"archived":1}
+PASS  P3 the purchase-order form asks for a supplier, an item and a quantity  — {"sup":true,"item":true,"qty":true}
+PASS  Q1 a goods receipt of 5 pieces at 12,000 raises the balance by 5  — {"state":{"stock":10,"receipts":1},"preview":"Preview: Brake part goes from 5 piece to 10 piece. Receipt value 60,000 MMK. Nothing changes until the receipt is record"}
+PASS  Q2 the same supplier, reference and item is not received twice  — {"state":{"stock":10,"receipts":1},"err":"This supplier, reference and item combination was already received."}
+PASS  R1 the follow-up form asks for a channel, an outcome and a note  — {"channel":true,"outcome":true,"note":true}
+PASS  R2 a follow-up note is recorded in the demo state  — {"n":1,"last":{"id":"FU-0001","jobId":"JOB-2026-0007","vehicleId":"VEH-007","channel":"Phone","outcome":"Customer will collect tomorrow","note":"Called the customer in the demo.","nextAction":"No further action","nextActionDate":"","at":"2026-10-28T10:00:00+06:30","actor":"U-CASHIER"}}
+PASS  S1 a catalogue service carries a price version and a price  — {"v":1,"fixed":40000,"bySize":null}
+PASS  S2 the Owner can open a catalogue service for editing  — true
+PASS  T1 a supplier return takes one piece off the balance and appends one movement  — {"stock":4,"movements":1}
+PASS  T2 a supplier return larger than the stock on hand is refused  — {"stock":4,"movements":1,"err":true}
+PASS  T3 a count appends its own movement and sets the balance to the counted quantity  — {"stock":5,"movements":2,"types":["Supplier return:-1","Count adjustment:1"]}
+PASS  T4 the same movement type for the same item is posted once per session  — {"button":{"disabled":true,"banner":true},"state":{"stock":5,"movements":2}}
+PASS  T5 a write-off of one consumable takes the balance to zero with one movement  — {"stock":0,"movements":3}
+PASS  U1 a refund larger than the amount collected is refused  — {"err":true,"count":0}
+PASS  V1 the corrected import sample can be staged and a duplicate row can be marked for merge  — {"staged":3,"dupIndex":2,"merge":true}
+PASS  V2 the merge has to be confirmed row by row before the import runs  — {"confirmed":1}
+PASS  V3 the simulated import creates the two new vehicles and merges the duplicate row  — {"before":4,"after":{"vehicles":6,"counts":{"valid":2,"skipped":0,"merged":1,"errors":0}}}
+PASS  W1 a demo payout is recorded for the earned share  — {"n":1,"amount":2000}
+PASS  W2 after the rule changes the row offers an adjustment instead of a second payout  — {"adjust":true}
+PASS  W3 the adjustment records only the difference and leaves the receipt revenue unchanged  — {"revenueBefore":60000,"after":{"n":2,"total":4000,"note":"Adjustment after rule change","rev":60000}}
+PASS  X1 a bay with an active assignment cannot be switched off  — {"occupied":{"bay":"BAY-3","job":"JOB-2026-0006"},"bay":{"box":true,"state":true},"err":"This bay has JOB-2026-0006 in it. Move or close that job before switching the bay off."}
+PASS  X2 a bay with no assignment can be switched off  — {"bay":"BAY-1","enabled":false}
+PASS  Y1 the service-due queue lists the job whose stored service date has passed  — {"job":true,"other":false}
+PASS  Y2 the collection queue lists the completed job that is still uncollected  — {"job":true,"other":false}
+PASS  no console errors during the second checklist run  — 0 errors
+
+28/28 checks passed

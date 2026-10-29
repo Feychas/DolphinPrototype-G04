@@ -1,0 +1,44 @@
+PASS  A1 the app opens on P01 with the Cashier role  — {"sc":"P01","role":"Cashier","screen":"S02"}
+PASS  A2 Demo controls lists all 16 scenarios plus both resets  — {"scenarios":16,"resetScenario":true,"resetAll":true}
+PASS  A3 a Manager cannot open the Owner settings screen and lands on an allowed view  — {"screen":"S01","notice":false}
+PASS  B1 the receipt rounds once to the nearest 100, half up (60,149 → 60,100; 60,150 → 60,200)  — {"r49":{"payableMMK":60000,"roundingMMK":-49},"r149":{"payableMMK":60100,"roundingMMK":-49},"r150":{"payableMMK":60200,"roundingMMK":50},"a50":false,"a50001":true}
+PASS  B2 approval is needed above 50,000 MMK but not at exactly 50,000  — {"r49":{"payableMMK":60000,"roundingMMK":-49},"r149":{"payableMMK":60100,"roundingMMK":-49},"r150":{"payableMMK":60200,"roundingMMK":50},"a50":false,"a50001":true}
+PASS  B3 a line discount is counted once (40,000 − 4,000 = 36,000) and the receipt rounds once  — {"subtotalMMK":40000,"discountMMK":4000,"roundingMMK":0,"totalMMK":36000}
+PASS  B4 a percentage discount of a third is rounded half up before the receipt rounding (33,333 − 3,333 = 30,000)  — {"subtotalMMK":33333,"discountMMK":3333,"roundingMMK":0,"totalMMK":30000}
+PASS  C1 a case-insensitive plate search shows only the matching vehicle  — {"shown":1,"text":"demo-008 nila demo toyota vios"}
+PASS  C2 a duplicate plate is rejected and nothing is added  — {"vehicles":4,"err":true}
+PASS  C3 a future year is rejected and nothing is added  — {"vehicles":4,"err":true}
+PASS  C4 a valid registration adds one vehicle and opens the check-in screen  — {"vehicles":5,"plate":"DEMO-030","screen":"S04"}
+PASS  D1 an empty mileage is not treated as zero  — {"m":null,"err":true}
+PASS  D2 a vehicle with an open visit is not given a second open job  — {"existing":true,"notice":true,"createBtn":false}
+PASS  E1 the Cashier sees the bay board without assignment controls  — {"assign":false}
+PASS  E2 a bay reserved by a booking is refused with a replan reason  — {"err":true,"bay":null}
+PASS  F1 a Mechanic cannot record the customer decision  — false
+PASS  F2 extra work creates v2 of 61,000 that needs a new approval while v1 stays approved  — {"v":2,"extra":true,"status":"Pending","total":61000,"prior":60000}
+PASS  F3 the previously authorised work continues while the extra version is pending  — In Progress
+PASS  F4 a declined extra version leaves the approved v1 usable until it is explicitly withdrawn  — {"v2":"Declined","v1":"Approved","withdraw":false}
+PASS  F5 a Cashier cannot withdraw declined extra work  — false
+PASS  F6 a Manager can withdraw the declined extra work, so the approved v1 scope is usable again  — {"withdraw":true,"v1":"Approved","complete":"Checklist item not done: Requested work completed | Checklist item not done: Final inspection completed"}
+PASS  G1 a shortage issues nothing and leaves the stock at 5  — {"stock":5,"issues":0}
+PASS  G2 the goods-receipt form needs supplier, item and unit  — {"supplier":true,"item":true,"unit":true}
+PASS  G3 a count of 4 gives a −1 movement and a final balance of 4  — {"stock":4,"movements":1}
+PASS  G4 a write-off larger than the stock on hand is refused and the stock does not change  — {"stock":4,"movements":1}
+PASS  G5 oil accepts a fractional litre (0.5 l) and appends one movement  — {"onHand":3.5,"movements":2}
+PASS  H1 an underpayment is refused with an explanation  — {"warn":true}
+PASS  H2 a wallet payment asks for a demo reference and a "Verified (demo)" tick  — {"ref":true,"verify":true}
+PASS  H3 posting twice creates only one receipt and one payment  — {"receipts":1,"payments":1,"status":"Paid"}
+PASS  I1 the service-due and awaiting-collection queues list the right jobs  — {"service":{"due":true,"j6":false},"collection":{"coll":true,"j6":false}}
+PASS  I2 a completed job becomes eligible exactly three days after completion, not a minute earlier  — {"exactly3":true,"oneMinuteLater":true}
+PASS  J1 a booking whose end is not after its start is refused with a reason  — {"err":true}
+PASS  J2 the overdue booking is still open before the no-show check runs  — {"count":3,"noShow":0}
+PASS  K1 the catalogue lists the demo promotion and a supplied Myanmar service label  — {"promotions":{"promo":true},"services":{"myanmar":true}}
+PASS  L1 all six import types are offered  — ["customers","vehicles","inventory","suppliers","services","pastJobs"]
+PASS  M1 a demo payout can be recorded from the commission tab  — true
+PASS  M2 the payout is recorded as paid out and the receipt revenue is unchanged  — {"paid":true,"rows":1,"rev":60000}
+PASS  N1 the settings page exposes the bay enable flags  — {"present":true}
+PASS  N2 the Myanmar preview is marked as a partial translation with an English fallback  — {"lang":"MM","partial":true}
+PASS  N3 the supplied Myanmar service label is shown in the MM preview  — {"mm":true}
+PASS  N4 a job screen shows the supplied Myanmar service label in the MM preview  — {"mm":true}
+PASS  no console errors during the checklist run  — 0 errors
+
+42/42 checks passed

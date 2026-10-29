@@ -1,0 +1,27 @@
+PASS  16 presets in the fixture  — P01,P02,P03,P04,P05,P06,P07,P08,P09,P10,P11,P12,P13,P14,P15,P16
+PASS  demo panel lists 16 presets  — 16 buttons
+PASS  panel has Reset scenario and Reset all
+PASS  preset P01 loads completely (S02)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  preset P02 loads completely (S08)  — jobs 4/4, receipts 1/1, movements 0/0
+PASS  preset P03 loads completely (S09)  — jobs 4/4, receipts 1/1, movements 0/0
+PASS  preset P04 loads completely (S06)  — jobs 4/4, receipts 1/1, movements 1/1
+PASS  preset P05 loads completely (S09)  — jobs 4/4, receipts 1/1, movements 0/0
+PASS  preset P06 loads completely (S12)  — jobs 4/4, receipts 1/1, movements 1/1
+PASS  preset P07 loads completely (S12)  — jobs 4/4, receipts 2/2, movements 1/1
+PASS  preset P08 loads completely (S06)  — jobs 4/4, receipts 1/1, movements 0/0
+PASS  preset P09 loads completely (S15)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  preset P10 loads completely (S14)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  preset P11 loads completely (S10)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  preset P12 loads completely (S17)  — jobs 3/3, receipts 3/3, movements 0/0
+PASS  preset P13 loads completely (S18)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  preset P14 loads completely (S19)  — jobs 4/4, receipts 2/2, movements 1/1
+PASS  preset P15 loads completely (S19)  — jobs 4/4, receipts 2/2, movements 1/1
+PASS  preset P16 loads completely (S13)  — jobs 3/3, receipts 1/1, movements 0/0
+PASS  presets are deep copies, not merged  — 5 → edited → 5 → 5
+PASS  reset scenario restores the preset  — {"stock":5,"jobs":3} expected {"stock":5,"jobs":3}
+PASS  reset all → P01 and Cashier  — {"sc":"P01","role":"Cashier","screen":"S02"}
+PASS  refresh resets to P01  — {"sc":"P01","role":"Cashier"}
+PASS  switching role keeps the state  — {"jobs":3,"screen":"S06","role":"Mechanic"}
+PASS  mechanic sees only assigned jobs  — visible: JOB-2026-0005,JOB-2026-0006 · assigned to Min: JOB-2026-0005,JOB-2026-0006
+
+25/25 checks passed

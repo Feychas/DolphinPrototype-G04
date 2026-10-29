@@ -1,0 +1,70 @@
+PASS  P02 opens with a pending 60,000 quote  — {"appr":"Pending","work":"Diagnose/Quote","q":"Pending","total":60000}
+PASS  P02 approval unlocks the job  — {"appr":"Approved","work":"Approved","dec":"Approved"}
+PASS  P02 a decline blocks the work  — {"appr":"Declined","work":"Diagnose/Quote","q":"Declined"}
+PASS  P03 starts with 5 on hand and nothing issued  — {"stock":5,"issues":0}
+PASS  P03 one issue deducts 5 → 4 and appends one movement  — {"stock":4,"issues":1,"movements":1}
+PASS  P03 the movement is a signed issue  — ["Job issue:-1:undefined"]
+PASS  P04 starts with one part already issued (5 → 4)  — {"stock":4,"issues":1,"work":"In Progress"}
+PASS  P04 an extra-work draft is prepared  — {"extra":true,"v":2}
+PASS  P04 extra work below 50,000 still needs approval  — {"total":60000,"basis":60000,"needed":true}
+PASS  P04 the extra version is pending while the old work continues  — {"v":2,"extra":true,"status":"Pending","appr":"Pending","work":"In Progress"}
+PASS  P04 the cancel dialog asks for a reason
+PASS  P04 cancel releases the bay and keeps the record  — {"life":"Cancelled","bay":null,"free":true,"reason":"Customer cancelled the repair."}
+PASS  P04 the returnable issue is offered
+PASS  P04 a recoverable return adds the unused part back (4 → 5)  — {"stock":5,"movements":2}
+PASS  P05 shows Waiting for Parts and keeps the bay  — {"work":"Waiting for Parts","bay":"BAY-2","stock":5,"busy":true}
+PASS  P05 the shortage is shown on screen
+PASS  P06 completed, unpaid, bay already free  — {"work":"Completed","pay":"Unpaid","coll":"Not collected","bay":null,"free":true}
+PASS  P06 the seeded receipt is not replayed  — {"receipts":1,"payments":1}
+PASS  P07 is paid but not collected  — {"pay":"Paid","coll":"Not collected","rc":"RC-2026-0002","total":60000,"receipts":2}
+PASS  P07 no extra receipt was created on load  — 2
+PASS  P07 a reprint does not create a second receipt  — {"receipts":2,"copies":0}
+PASS  P07 the COPY is labelled
+PASS  P07 the charge sample prefills −5,000 and a 5,000 refund  — {"charge":"-5000","refund":"5000"}
+PASS  P07 the correction is recorded and the effective charge is 55,000  — {"orig":60000,"eff":0,"corrCount":1,"text":true}
+PASS  P07 a method correction is recorded  — {"corrCount":1,"rev":null}
+PASS  P07 a paid job offers no new quote version  — {"locked":true,"button":false}
+PASS  P07 the paid quote is unchanged  — {"quotes":1,"total":60000}
+PASS  P08 opens on the linked zero-charge Redo job  — {"of":"JOB-2026-0005","price":0,"work":"Check-in","pay":"Unpaid"}
+PASS  P08 the link to the original is shown
+PASS  P08 a paid job can take a further linked Redo
+PASS  P08 the Redo is assigned to a bay and a mechanic  — {"bay":"BAY-2","staff":["U-AUNG"]}
+PASS  P08 the Redo can be worked like any other job  — In Progress
+PASS  P08 completing the Redo releases its bay  — {"work":"Completed","bay":null}
+PASS  P08 a zero-charge Redo offers “Settle as no charge”
+PASS  P08 the zero-charge Redo gets a zero-total receipt and no payment  — {"pay":"No charge","rc":"RC-2026-0002","total":0,"payments":0}
+PASS  P09 the catalogue has demo promotions  — ["PROMO-01:fixed:6500"]
+PASS  P09 the S wash-and-polish promotion gives 12,000 (18,500 − 6,500)  — {"reg":18500,"promo":"PROMO-01","final":12000}
+PASS  P09 the discount approval action exists
+PASS  P09 the Cashier reaches the discount request but not the catalogue  — {"form":true,"services":false,"tab":false}
+PASS  P09 the 40,000 MMK labour sample is offered  — ["committed||H6-L1|SVC-SCAN|30000 | Computer diagnostic scan — 30,000 MMK","sample|||SVC-BRAKE|40000 | Demo sample — Brake repair labour — 40,000 MMK — published sample: 40000 MMK"]
+PASS  P09 the preview shows 36,000 after 10%  — Regular 40,000 MMK − 4,000 MMK (10%) = 36,000 MMK. Approval needed from a Manager (10% or less).
+PASS  P09 the 10% request is recorded as pending  — ["DR-01:Pending:10:36000:40000"]
+PASS  P09 a Manager may approve 10% (40,000 → 36,000)  — {"status":"Approved","final":36000,"approver":"U-MANAGER"}
+PASS  P09 the preview shows 34,000 after 15%  — Regular 40,000 MMK − 6,000 MMK (15%) = 34,000 MMK. Approval needed from the Owner (a discount above 10%).
+PASS  P09 a Manager is told that 15% needs the Owner  — {"owner":true}
+PASS  P09 the Owner may approve 15% (40,000 → 34,000)  — {"status":"Approved","final":34000,"approver":"U-OWNER"}
+PASS  P09 a promoted service line is quoted at 12,000 (18,500 − 6,500)  — {"price":12000,"regular":18500,"promo":"PROMO-01"}
+PASS  P10 the fixture bookings are loaded  — ["BK-01:Booked:undefined:BAY-1","BK-02:Requested:undefined:null","BK-03:Booked:undefined:BAY-2"]
+PASS  P10 the no-show check cancels the overdue booking once  — {"count":3,"noShow":1,"ids":["BK-03"]}
+PASS  P10 running it twice does not cancel twice  — 1
+PASS  P11 opens with 5 on hand and no replayed movement  — {"stock":5,"movements":0}
+PASS  P11 the purchase-order form is on screen
+PASS  P11 creating a purchase order does not change stock  — {"stock":5,"orders":1}
+PASS  P11 a count of 4 gives a −1 movement and a final balance of 4  — {"stock":4,"movements":1}
+PASS  P12 the expected 60,000 / 30,000 / 20,000 are shown  — {"cash":true,"kbz":true,"wave":true}
+PASS  P12 a 500 difference is shown for WavePay
+PASS  P12 an explanation field is required when a difference exists
+PASS  P12 the closing is saved  — {"closings":1}
+PASS  P13 the sample rows create a staging preview  — {"vehicles":{"type":"vehicles","at":"2026-10-28T10:00:00+06:30","rows":[{"index":1,"data":{"plate":"DEMO-020","customerId":"CUS-02","brand":"Toyota","model":"Aqua","year":2021,"size":"S"},"key":"DEMO-020","status":"valid","messages":[],"choice":"skip","mergeConfirmed":false,"corrected":false,"existi
+PASS  P13 valid, duplicate and error counts are shown  — {"valid":true,"dup":true,"err":true,"sim":true}
+PASS  P13 the import is blocked while errors remain  — enabled {"vehicles":4,"blocked":true,"toast":"Count adjustment recorded. Brake part is now 4 piece.\nLoaded scenario P12 — Daily closing: three payment methods.\nNow previewing as Cashier Demo (Cashier). State kept.\nClosing saved for 2026-10-28. A difference is open — a Manager has to review it.\nLoaded scenario P13 — Import preview and duplicate handling.\nNow previewing as Manager Demo (Manager). State kept.\nStaged 3 sample rows for Vehicles — 1 valid, 1 duplicate, 1 error. No record has been changed yet.\nThe import is blocked: 1 row still has an error. Use the corrected sample first."}
+PASS  P13 the corrected sample removes the blocking error  — enabled
+PASS  P13 the import adds the two new vehicles and skips the duplicate  — {"vehicles":6,"logs":1}
+PASS  P14 revenue 60,000, cost 12,000, profit 48,000, commission 4,000, 2,000 each, contribution 44,000  — {"rev":true,"cost":true,"profit":true,"comm":true,"split":true,"contrib":true}
+PASS  P15 shows Incomplete cost and Not configured commission  — {"inc":true,"notcfg":true,"zero":true}
+PASS  P16 lists the service-due job and the uncollected job  — {"due":true,"coll":true,"j7":true,"j5":false}
+PASS  P16 the follow-up form is present
+PASS  no console errors during the exception run
+
+68/68 checks passed

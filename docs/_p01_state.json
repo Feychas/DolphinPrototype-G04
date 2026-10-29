@@ -1,0 +1,596 @@
+{
+ "demoNow": "2026-10-28T10:00:00+06:30",
+ "activeUserId": "U-CASHIER",
+ "selectedJobId": null,
+ "selectedVehicleId": "VEH-008",
+ "language": "EN",
+ "users": [
+  {
+   "id": "U-OWNER",
+   "name": "Owner Demo",
+   "role": "Owner"
+  },
+  {
+   "id": "U-MANAGER",
+   "name": "Manager Demo",
+   "role": "Manager"
+  },
+  {
+   "id": "U-CASHIER",
+   "name": "Cashier Demo",
+   "role": "Cashier"
+  },
+  {
+   "id": "U-AUNG",
+   "name": "Aung (Demo)",
+   "role": "Mechanic"
+  },
+  {
+   "id": "U-MIN",
+   "name": "Min (Demo)",
+   "role": "Mechanic"
+  }
+ ],
+ "customers": [
+  {
+   "id": "CUS-01",
+   "name": "Nila Demo",
+   "phone": "09-0000-0001",
+   "viber": "nila-demo",
+   "facebook": "",
+   "archived": false
+  },
+  {
+   "id": "CUS-02",
+   "name": "Ko Min Demo",
+   "phone": "09-0000-0002",
+   "viber": "",
+   "facebook": "ko-min-demo",
+   "archived": false
+  }
+ ],
+ "vehicles": [
+  {
+   "id": "VEH-007",
+   "customerId": "CUS-01",
+   "plate": "DEMO-007",
+   "brand": "Honda",
+   "model": "Fit",
+   "year": 2018,
+   "size": "S",
+   "archived": false
+  },
+  {
+   "id": "VEH-008",
+   "customerId": "CUS-01",
+   "plate": "DEMO-008",
+   "brand": "Toyota",
+   "model": "Vios",
+   "year": 2020,
+   "size": "M",
+   "archived": false
+  },
+  {
+   "id": "VEH-009",
+   "customerId": "CUS-02",
+   "plate": "DEMO-009",
+   "brand": "Suzuki",
+   "model": "Swift",
+   "year": 2019,
+   "size": "S",
+   "archived": false
+  },
+  {
+   "id": "VEH-010",
+   "customerId": "CUS-02",
+   "plate": "DEMO-010",
+   "brand": "Nissan",
+   "model": "Vanette",
+   "year": 2017,
+   "size": "L",
+   "archived": false
+  }
+ ],
+ "services": [
+  {
+   "id": "SVC-WASH",
+   "nameEN": "Car wash",
+   "nameMM": "ကားရေဆေး",
+   "priceBySizeMMK": {
+    "S": 8000,
+    "M": 10000,
+    "L": 12000
+   },
+   "fixedPriceMMK": null,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-POLISH",
+   "nameEN": "Car wash + hand polish",
+   "nameMM": "ကားရေဆေး + လက်ပေါ်လစ်တိုက်",
+   "priceBySizeMMK": {
+    "S": 18500,
+    "M": 22500,
+    "L": 25500
+   },
+   "fixedPriceMMK": null,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-CLEAN",
+   "nameEN": "Engine bay cleaning",
+   "nameMM": "ကားအင်ဂျင်ဂျိုးဆေးပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 25000,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-SCAN",
+   "nameEN": "Computer diagnostic scan",
+   "nameMM": "ကွန်ပျူတာစက်ထိုးပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 30000,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-OIL",
+   "nameEN": "Engine oil change",
+   "nameMM": "အင်ဂျင်ဝိုင်လဲလှယ်ခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 15000,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-GEAR",
+   "nameEN": "Gear oil change",
+   "nameMM": "ဂီယာဝိုင်လဲလှယ်ခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 30000,
+   "isRepairForDemo": false,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-BRAKE",
+   "nameEN": "Brake repair (per axle)",
+   "nameMM": "ကားဘရိတ်များပြုပြင်ပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 40000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-UNDER",
+   "nameEN": "Undercarriage repair",
+   "nameMM": "ကားအောက်ပိုင်းပြုပြင်ပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 50000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-TUNE",
+   "nameEN": "Engine tuning",
+   "nameMM": "အင်ဂျင်ကျူးနင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 100000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-LEAK",
+   "nameEN": "Engine leak repair",
+   "nameMM": "ကားအင်ဂျင်ယိုစိမ့်မှုများပြုပြင်ပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 100000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-VALVE",
+   "nameEN": "Valve body cleaning",
+   "nameMM": "Valve body ဖြုတ်ဆေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 250000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  },
+  {
+   "id": "SVC-REPLACE",
+   "nameEN": "Engine/gearbox replacement",
+   "nameMM": "Engine, Gear box လဲလှယ်ပေးခြင်း",
+   "priceBySizeMMK": null,
+   "fixedPriceMMK": 500000,
+   "isRepairForDemo": true,
+   "active": true,
+   "priceVersion": 1,
+   "priceBasis": "Working source example; not verified live pricing"
+  }
+ ],
+ "items": [
+  {
+   "id": "ITEM-BRAKE",
+   "name": "Brake part",
+   "type": "Part",
+   "unit": "piece",
+   "fractional": false,
+   "onHand": 5,
+   "reorderLevel": 3,
+   "sellPriceMMK": 20000,
+   "latestPurchaseCostMMK": 12000,
+   "supplierId": "SUP-01",
+   "brand": "Demo Parts",
+   "grade": null
+  },
+  {
+   "id": "ITEM-OIL",
+   "name": "Engine oil 5W-30",
+   "type": "Oil",
+   "unit": "liter",
+   "fractional": true,
+   "onHand": 4,
+   "reorderLevel": 5,
+   "sellPriceMMK": 8000,
+   "latestPurchaseCostMMK": 5000,
+   "supplierId": "SUP-02",
+   "brand": "Demo Oil",
+   "grade": "5W-30"
+  },
+  {
+   "id": "ITEM-CLEANER",
+   "name": "Brake cleaner",
+   "type": "Consumable",
+   "unit": "bottle",
+   "fractional": false,
+   "onHand": 1,
+   "reorderLevel": 2,
+   "sellPriceMMK": null,
+   "latestPurchaseCostMMK": 4000,
+   "supplierId": "SUP-01",
+   "brand": "Demo Cleaner",
+   "grade": null
+  }
+ ],
+ "suppliers": [
+  {
+   "id": "SUP-01",
+   "name": "Demo Parts Supply",
+   "contact": "Supplier A - demonstration",
+   "active": true
+  },
+  {
+   "id": "SUP-02",
+   "name": "Demo Oil Supply",
+   "contact": "Supplier B - demonstration",
+   "active": true
+  }
+ ],
+ "bays": [
+  {
+   "id": "BAY-1",
+   "name": "Bay 1",
+   "enabled": true
+  },
+  {
+   "id": "BAY-2",
+   "name": "Bay 2",
+   "enabled": true
+  },
+  {
+   "id": "BAY-3",
+   "name": "Bay 3",
+   "enabled": true
+  }
+ ],
+ "jobs": [
+  {
+   "id": "JOB-2026-0005",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-10T08:00:00+06:30",
+   "mileageKm": 65000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-SCAN"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Completed",
+   "approvalStatus": "Not required",
+   "paymentStatus": "Paid",
+   "collectionStatus": "Collected",
+   "lifecycleStatus": "Closed",
+   "assignedStaffIds": [
+    "U-MIN"
+   ],
+   "bayId": null,
+   "completedAt": "2026-10-10T09:00:00+06:30",
+   "collectedAt": "2026-10-10T09:15:00+06:30",
+   "closedAt": "2026-10-10T09:16:00+06:30",
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [],
+   "activeQuoteVersion": null,
+   "materialIssues": [],
+   "committedServiceLines": [
+    {
+     "id": "H5-L1",
+     "kind": "service",
+     "label": "Computer diagnostic scan",
+     "quantity": 1,
+     "unitPriceMMK": 30000,
+     "discountMMK": 0,
+     "totalMMK": 30000,
+     "serviceId": "SVC-SCAN"
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": true
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": true
+    }
+   ],
+   "nextServiceDueDate": "2026-10-27",
+   "nextServiceDueMileageKm": 68000,
+   "notes": [],
+   "cancellation": null
+  },
+  {
+   "id": "JOB-2026-0006",
+   "vehicleId": "VEH-009",
+   "createdAt": "2026-10-24T08:00:00+06:30",
+   "mileageKm": 45000,
+   "size": "S",
+   "requestedServiceIds": [
+    "SVC-SCAN"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "In Progress",
+   "approvalStatus": "Not required",
+   "paymentStatus": "Unpaid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-MIN"
+   ],
+   "bayId": "BAY-3",
+   "completedAt": null,
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [],
+   "activeQuoteVersion": null,
+   "materialIssues": [],
+   "committedServiceLines": [
+    {
+     "id": "H6-L1",
+     "kind": "service",
+     "label": "Computer diagnostic scan",
+     "quantity": 1,
+     "unitPriceMMK": 30000,
+     "discountMMK": 0,
+     "totalMMK": 30000,
+     "serviceId": "SVC-SCAN"
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": false
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": false
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  {
+   "id": "JOB-2026-0007",
+   "vehicleId": "VEH-007",
+   "createdAt": "2026-10-24T09:00:00+06:30",
+   "mileageKm": 41000,
+   "size": "S",
+   "requestedServiceIds": [
+    "SVC-SCAN"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Completed",
+   "approvalStatus": "Not required",
+   "paymentStatus": "Unpaid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-AUNG"
+   ],
+   "bayId": null,
+   "completedAt": "2026-10-24T10:00:00+06:30",
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [],
+   "activeQuoteVersion": null,
+   "materialIssues": [],
+   "committedServiceLines": [
+    {
+     "id": "H7-L1",
+     "kind": "service",
+     "label": "Computer diagnostic scan",
+     "quantity": 1,
+     "unitPriceMMK": 30000,
+     "discountMMK": 0,
+     "totalMMK": 30000,
+     "serviceId": "SVC-SCAN"
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": true
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": true
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  }
+ ],
+ "promotions": [
+  {
+   "id": "PROMO-01",
+   "nameEN": "Rainy season demo",
+   "nameMM": "",
+   "startDate": "2026-10-01",
+   "endDate": "2026-10-31",
+   "serviceIds": [
+    "SVC-POLISH"
+   ],
+   "sizes": [
+    "S",
+    "M",
+    "L"
+   ],
+   "type": "fixed",
+   "value": 6500,
+   "active": true
+  }
+ ],
+ "bookings": [
+  {
+   "id": "BK-01",
+   "vehicleId": "VEH-010",
+   "serviceId": "SVC-WASH",
+   "startAt": "2026-10-28T11:00:00+06:30",
+   "endAt": "2026-10-28T12:00:00+06:30",
+   "bayId": "BAY-1",
+   "status": "Booked",
+   "arrivedAt": null,
+   "jobId": null
+  },
+  {
+   "id": "BK-02",
+   "vehicleId": "VEH-008",
+   "serviceId": "SVC-OIL",
+   "startAt": "2026-10-29T09:00:00+06:30",
+   "endAt": "2026-10-29T10:00:00+06:30",
+   "bayId": null,
+   "status": "Requested",
+   "arrivedAt": null,
+   "jobId": null
+  }
+ ],
+ "receipts": [
+  {
+   "id": "RC-2026-0001",
+   "jobId": "JOB-2026-0005",
+   "issuedAt": "2026-10-10T09:10:00+06:30",
+   "lines": [
+    {
+     "id": "H5-L1",
+     "kind": "service",
+     "label": "Computer diagnostic scan",
+     "quantity": 1,
+     "unitPriceMMK": 30000,
+     "discountMMK": 0,
+     "totalMMK": 30000,
+     "serviceId": "SVC-SCAN"
+    }
+   ],
+   "subtotalMMK": 30000,
+   "discountMMK": 0,
+   "roundingMMK": 0,
+   "totalMMK": 30000,
+   "kind": "Receipt"
+  }
+ ],
+ "payments": [
+  {
+   "id": "PAY-01",
+   "receiptId": "RC-2026-0001",
+   "jobId": "JOB-2026-0005",
+   "method": "KBZPay",
+   "amountAppliedMMK": 30000,
+   "cashTenderedMMK": null,
+   "changeMMK": 0,
+   "verified": true,
+   "reference": "DEMO-KBZ-001",
+   "at": "2026-10-10T09:10:00+06:30"
+  }
+ ],
+ "stockMovements": [],
+ "purchaseOrders": [],
+ "goodsReceipts": [],
+ "discountRequests": [],
+ "corrections": [],
+ "cashClosings": [],
+ "followUps": [],
+ "importBatches": [],
+ "activity": [],
+ "commissionRule": null,
+ "commissionPayouts": [],
+ "counters": {
+  "nextJob": 8,
+  "nextReceipt": 2,
+  "nextPayment": 2,
+  "nextVehicle": 11,
+  "nextCustomer": 3,
+  "nextMovement": 1
+ },
+ "openingBalances": {
+  "date": "2026-10-28",
+  "cashFloatMMK": 0,
+  "nonSalesCashMovementsMMK": 0
+ }
+}

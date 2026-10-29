@@ -1,0 +1,2220 @@
+{
+ "P02": {
+  "commissionRule": null,
+  "job0008": {
+   "id": "JOB-2026-0008",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-28T10:00:00+06:30",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Diagnose/Quote",
+   "approvalStatus": "Pending",
+   "paymentStatus": "Unpaid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-AUNG"
+   ],
+   "bayId": "BAY-2",
+   "completedAt": null,
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [
+    {
+     "version": 1,
+     "isExtraWork": false,
+     "status": "Pending",
+     "lines": [
+      {
+       "id": "Q1-L1",
+       "kind": "service",
+       "label": "Brake repair labour",
+       "quantity": 1,
+       "unitPriceMMK": 40000,
+       "discountMMK": 0,
+       "totalMMK": 40000,
+       "serviceId": "SVC-BRAKE",
+       "repair": true
+      },
+      {
+       "id": "Q1-L2",
+       "kind": "part",
+       "label": "Brake part",
+       "quantity": 1,
+       "unitPriceMMK": 20000,
+       "discountMMK": 0,
+       "totalMMK": 20000,
+       "itemId": "ITEM-BRAKE",
+       "unit": "piece",
+       "source": "Shop",
+       "repair": true
+      }
+     ],
+     "repairApprovalBasisMMK": 60000,
+     "subtotalMMK": 60000,
+     "roundingMMK": 0,
+     "totalMMK": 60000,
+     "approval": null
+    }
+   ],
+   "activeQuoteVersion": 1,
+   "materialIssues": [],
+   "committedServiceLines": [],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": false
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": false
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   }
+  ],
+  "stockMovements": [],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 9,
+   "nextReceipt": 2,
+   "nextPayment": 2,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 1
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 5,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P04": {
+  "commissionRule": null,
+  "job0008": {
+   "id": "JOB-2026-0008",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-28T10:00:00+06:30",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "In Progress",
+   "approvalStatus": "Approved",
+   "paymentStatus": "Unpaid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-AUNG"
+   ],
+   "bayId": "BAY-2",
+   "completedAt": null,
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [
+    {
+     "version": 1,
+     "isExtraWork": false,
+     "status": "Approved",
+     "lines": [
+      {
+       "id": "Q1-L1",
+       "kind": "service",
+       "label": "Brake repair labour",
+       "quantity": 1,
+       "unitPriceMMK": 40000,
+       "discountMMK": 0,
+       "totalMMK": 40000,
+       "serviceId": "SVC-BRAKE",
+       "repair": true
+      },
+      {
+       "id": "Q1-L2",
+       "kind": "part",
+       "label": "Brake part",
+       "quantity": 1,
+       "unitPriceMMK": 20000,
+       "discountMMK": 0,
+       "totalMMK": 20000,
+       "itemId": "ITEM-BRAKE",
+       "unit": "piece",
+       "source": "Shop",
+       "repair": true
+      }
+     ],
+     "repairApprovalBasisMMK": 60000,
+     "subtotalMMK": 60000,
+     "roundingMMK": 0,
+     "totalMMK": 60000,
+     "approval": {
+      "decision": "Approved",
+      "channel": "Phone (simulated)",
+      "recordedBy": "U-CASHIER",
+      "recordedAt": "2026-10-28T10:00:00+06:30",
+      "note": "Customer agreed to quote v1 - demo"
+     }
+    }
+   ],
+   "activeQuoteVersion": 1,
+   "materialIssues": [
+    {
+     "id": "ISS-01",
+     "quoteVersion": 1,
+     "quoteLineId": "Q1-L2",
+     "itemId": "ITEM-BRAKE",
+     "quantity": 1,
+     "unit": "piece",
+     "unitPriceMMK": 20000,
+     "unitCostSnapshotMMK": 12000,
+     "returnedQuantity": 0,
+     "disposition": null
+    }
+   ],
+   "committedServiceLines": [
+    {
+     "id": "Q1-L1",
+     "kind": "service",
+     "label": "Brake repair labour",
+     "quantity": 1,
+     "unitPriceMMK": 40000,
+     "discountMMK": 0,
+     "totalMMK": 40000,
+     "serviceId": "SVC-BRAKE",
+     "repair": true
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": false
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": false
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   }
+  ],
+  "stockMovements": [
+   {
+    "id": "MOV-01",
+    "itemId": "ITEM-BRAKE",
+    "delta": -1,
+    "unit": "piece",
+    "type": "Job issue",
+    "jobId": "JOB-2026-0008",
+    "issueId": "ISS-01",
+    "actor": "U-AUNG",
+    "at": "2026-10-28T10:00:00+06:30",
+    "reason": "Approved brake repair",
+    "unitCostMMK": 12000
+   }
+  ],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 9,
+   "nextReceipt": 2,
+   "nextPayment": 2,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 2
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 4,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P07": {
+  "commissionRule": null,
+  "job0008": {
+   "id": "JOB-2026-0008",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-28T10:00:00+06:30",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Completed",
+   "approvalStatus": "Approved",
+   "paymentStatus": "Paid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-AUNG"
+   ],
+   "bayId": null,
+   "completedAt": "2026-10-28T10:00:00+06:30",
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [
+    {
+     "version": 1,
+     "isExtraWork": false,
+     "status": "Approved",
+     "lines": [
+      {
+       "id": "Q1-L1",
+       "kind": "service",
+       "label": "Brake repair labour",
+       "quantity": 1,
+       "unitPriceMMK": 40000,
+       "discountMMK": 0,
+       "totalMMK": 40000,
+       "serviceId": "SVC-BRAKE",
+       "repair": true
+      },
+      {
+       "id": "Q1-L2",
+       "kind": "part",
+       "label": "Brake part",
+       "quantity": 1,
+       "unitPriceMMK": 20000,
+       "discountMMK": 0,
+       "totalMMK": 20000,
+       "itemId": "ITEM-BRAKE",
+       "unit": "piece",
+       "source": "Shop",
+       "repair": true
+      }
+     ],
+     "repairApprovalBasisMMK": 60000,
+     "subtotalMMK": 60000,
+     "roundingMMK": 0,
+     "totalMMK": 60000,
+     "approval": {
+      "decision": "Approved",
+      "channel": "Phone (simulated)",
+      "recordedBy": "U-CASHIER",
+      "recordedAt": "2026-10-28T10:00:00+06:30",
+      "note": "Customer agreed to quote v1 - demo"
+     }
+    }
+   ],
+   "activeQuoteVersion": 1,
+   "materialIssues": [
+    {
+     "id": "ISS-01",
+     "quoteVersion": 1,
+     "quoteLineId": "Q1-L2",
+     "itemId": "ITEM-BRAKE",
+     "quantity": 1,
+     "unit": "piece",
+     "unitPriceMMK": 20000,
+     "unitCostSnapshotMMK": 12000,
+     "returnedQuantity": 0,
+     "disposition": null
+    }
+   ],
+   "committedServiceLines": [
+    {
+     "id": "Q1-L1",
+     "kind": "service",
+     "label": "Brake repair labour",
+     "quantity": 1,
+     "unitPriceMMK": 40000,
+     "discountMMK": 0,
+     "totalMMK": 40000,
+     "serviceId": "SVC-BRAKE",
+     "repair": true
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": true
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": true
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   },
+   {
+    "id": "RC-2026-0002",
+    "jobId": "JOB-2026-0008",
+    "issuedAt": "2026-10-28T10:00:00+06:30",
+    "lines": [
+     {
+      "id": "Q1-L1",
+      "kind": "service",
+      "label": "Brake repair labour",
+      "quantity": 1,
+      "unitPriceMMK": 40000,
+      "discountMMK": 0,
+      "totalMMK": 40000,
+      "serviceId": "SVC-BRAKE",
+      "repair": true
+     },
+     {
+      "id": "Q1-L2",
+      "kind": "part",
+      "label": "Brake part",
+      "quantity": 1,
+      "unitPriceMMK": 20000,
+      "discountMMK": 0,
+      "totalMMK": 20000,
+      "itemId": "ITEM-BRAKE",
+      "unit": "piece",
+      "source": "Shop",
+      "repair": true
+     }
+    ],
+    "subtotalMMK": 60000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 60000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   },
+   {
+    "id": "PAY-02",
+    "receiptId": "RC-2026-0002",
+    "jobId": "JOB-2026-0008",
+    "method": "Cash",
+    "amountAppliedMMK": 60000,
+    "cashTenderedMMK": 100000,
+    "changeMMK": 40000,
+    "verified": true,
+    "reference": null,
+    "at": "2026-10-28T10:00:00+06:30"
+   }
+  ],
+  "stockMovements": [
+   {
+    "id": "MOV-01",
+    "itemId": "ITEM-BRAKE",
+    "delta": -1,
+    "unit": "piece",
+    "type": "Job issue",
+    "jobId": "JOB-2026-0008",
+    "issueId": "ISS-01",
+    "actor": "U-AUNG",
+    "at": "2026-10-28T10:00:00+06:30",
+    "reason": "Approved brake repair",
+    "unitCostMMK": 12000
+   }
+  ],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 9,
+   "nextReceipt": 3,
+   "nextPayment": 3,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 2
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 4,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P08": {
+  "commissionRule": null,
+  "job0008": {
+   "id": "JOB-2026-0008",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-28T10:00:00+06:30",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-SCAN"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Check-in",
+   "approvalStatus": "Not required",
+   "paymentStatus": "Unpaid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [],
+   "bayId": null,
+   "completedAt": null,
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": "JOB-2026-0005",
+   "managerSetRedoChargeMMK": 0,
+   "quotes": [],
+   "activeQuoteVersion": null,
+   "materialIssues": [],
+   "committedServiceLines": [],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": false
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": false
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   }
+  ],
+  "stockMovements": [],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 9,
+   "nextReceipt": 2,
+   "nextPayment": 2,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 1
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 5,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P10": {
+  "commissionRule": null,
+  "job0008": null,
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   }
+  ],
+  "stockMovements": [],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-03",
+    "vehicleId": "VEH-007",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T09:00:00+06:30",
+    "endAt": "2026-10-28T09:45:00+06:30",
+    "bayId": "BAY-2",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 8,
+   "nextReceipt": 2,
+   "nextPayment": 2,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 1
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 5,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P12": {
+  "commissionRule": null,
+  "job0008": null,
+  "receipts": [
+   {
+    "id": "RC-2026-0011",
+    "jobId": "JOB-2026-0011",
+    "issuedAt": "2026-10-28T10:00:00+06:30",
+    "lines": [
+     {
+      "id": "D1-L1",
+      "kind": "service",
+      "label": "Closing fixture service 1",
+      "quantity": 1,
+      "unitPriceMMK": 60000,
+      "discountMMK": 0,
+      "totalMMK": 60000,
+      "serviceId": null
+     }
+    ],
+    "subtotalMMK": 60000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 60000,
+    "kind": "Receipt"
+   },
+   {
+    "id": "RC-2026-0012",
+    "jobId": "JOB-2026-0012",
+    "issuedAt": "2026-10-28T10:00:00+06:30",
+    "lines": [
+     {
+      "id": "D2-L1",
+      "kind": "service",
+      "label": "Closing fixture service 2",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": null
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   },
+   {
+    "id": "RC-2026-0013",
+    "jobId": "JOB-2026-0013",
+    "issuedAt": "2026-10-28T10:00:00+06:30",
+    "lines": [
+     {
+      "id": "D3-L1",
+      "kind": "service",
+      "label": "Closing fixture service 3",
+      "quantity": 1,
+      "unitPriceMMK": 20000,
+      "discountMMK": 0,
+      "totalMMK": 20000,
+      "serviceId": null
+     }
+    ],
+    "subtotalMMK": 20000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 20000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-11",
+    "receiptId": "RC-2026-0011",
+    "jobId": "JOB-2026-0011",
+    "method": "Cash",
+    "amountAppliedMMK": 60000,
+    "cashTenderedMMK": 60000,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": null,
+    "at": "2026-10-28T10:00:00+06:30"
+   },
+   {
+    "id": "PAY-12",
+    "receiptId": "RC-2026-0012",
+    "jobId": "JOB-2026-0012",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZPay",
+    "at": "2026-10-28T10:00:00+06:30"
+   },
+   {
+    "id": "PAY-13",
+    "receiptId": "RC-2026-0013",
+    "jobId": "JOB-2026-0013",
+    "method": "WavePay",
+    "amountAppliedMMK": 20000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-WavePay",
+    "at": "2026-10-28T10:00:00+06:30"
+   }
+  ],
+  "stockMovements": [],
+  "bookings": [],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 14,
+   "nextReceipt": 14,
+   "nextPayment": 14,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 1
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 5,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0011",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "D1-L1",
+      "kind": "service",
+      "label": "Closing fixture service 1",
+      "quantity": 1,
+      "unitPriceMMK": 60000,
+      "discountMMK": 0,
+      "totalMMK": 60000,
+      "serviceId": null
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0012",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "D2-L1",
+      "kind": "service",
+      "label": "Closing fixture service 2",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": null
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0013",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "D3-L1",
+      "kind": "service",
+      "label": "Closing fixture service 3",
+      "quantity": 1,
+      "unitPriceMMK": 20000,
+      "discountMMK": 0,
+      "totalMMK": 20000,
+      "serviceId": null
+     }
+    ]
+   }
+  ]
+ },
+ "P14": {
+  "commissionRule": {
+   "id": "COMM-DEMO",
+   "illustrative": true,
+   "type": "percent",
+   "value": 10,
+   "basis": "finalLabour",
+   "eligibleRoles": [
+    "Mechanic"
+   ],
+   "eligibleServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "payoutPeriod": "Monthly"
+  },
+  "job0008": {
+   "id": "JOB-2026-0008",
+   "vehicleId": "VEH-008",
+   "createdAt": "2026-10-28T10:00:00+06:30",
+   "mileageKm": 68000,
+   "size": "M",
+   "requestedServiceIds": [
+    "SVC-BRAKE"
+   ],
+   "damage": "Small scratch on rear bumper",
+   "fuelLevel": "Half",
+   "belongings": "One empty bag",
+   "photoSample": "sample-vehicle-condition",
+   "workStatus": "Completed",
+   "approvalStatus": "Approved",
+   "paymentStatus": "Paid",
+   "collectionStatus": "Not collected",
+   "lifecycleStatus": "Open",
+   "assignedStaffIds": [
+    "U-AUNG",
+    "U-MIN"
+   ],
+   "bayId": null,
+   "completedAt": "2026-10-28T10:00:00+06:30",
+   "collectedAt": null,
+   "closedAt": null,
+   "redoOfJobId": null,
+   "managerSetRedoChargeMMK": null,
+   "quotes": [
+    {
+     "version": 1,
+     "isExtraWork": false,
+     "status": "Approved",
+     "lines": [
+      {
+       "id": "Q1-L1",
+       "kind": "service",
+       "label": "Brake repair labour",
+       "quantity": 1,
+       "unitPriceMMK": 40000,
+       "discountMMK": 0,
+       "totalMMK": 40000,
+       "serviceId": "SVC-BRAKE",
+       "repair": true
+      },
+      {
+       "id": "Q1-L2",
+       "kind": "part",
+       "label": "Brake part",
+       "quantity": 1,
+       "unitPriceMMK": 20000,
+       "discountMMK": 0,
+       "totalMMK": 20000,
+       "itemId": "ITEM-BRAKE",
+       "unit": "piece",
+       "source": "Shop",
+       "repair": true
+      }
+     ],
+     "repairApprovalBasisMMK": 60000,
+     "subtotalMMK": 60000,
+     "roundingMMK": 0,
+     "totalMMK": 60000,
+     "approval": {
+      "decision": "Approved",
+      "channel": "Phone (simulated)",
+      "recordedBy": "U-CASHIER",
+      "recordedAt": "2026-10-28T10:00:00+06:30",
+      "note": "Customer agreed to quote v1 - demo"
+     }
+    }
+   ],
+   "activeQuoteVersion": 1,
+   "materialIssues": [
+    {
+     "id": "ISS-01",
+     "quoteVersion": 1,
+     "quoteLineId": "Q1-L2",
+     "itemId": "ITEM-BRAKE",
+     "quantity": 1,
+     "unit": "piece",
+     "unitPriceMMK": 20000,
+     "unitCostSnapshotMMK": 12000,
+     "returnedQuantity": 0,
+     "disposition": null
+    }
+   ],
+   "committedServiceLines": [
+    {
+     "id": "Q1-L1",
+     "kind": "service",
+     "label": "Brake repair labour",
+     "quantity": 1,
+     "unitPriceMMK": 40000,
+     "discountMMK": 0,
+     "totalMMK": 40000,
+     "serviceId": "SVC-BRAKE",
+     "repair": true
+    }
+   ],
+   "requiredChecklist": [
+    {
+     "id": "C1",
+     "text": "Requested work completed",
+     "done": true
+    },
+    {
+     "id": "C2",
+     "text": "Final inspection completed",
+     "done": true
+    }
+   ],
+   "nextServiceDueDate": null,
+   "nextServiceDueMileageKm": null,
+   "notes": [],
+   "cancellation": null
+  },
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   },
+   {
+    "id": "RC-2026-0002",
+    "jobId": "JOB-2026-0008",
+    "issuedAt": "2026-10-28T10:00:00+06:30",
+    "lines": [
+     {
+      "id": "Q1-L1",
+      "kind": "service",
+      "label": "Brake repair labour",
+      "quantity": 1,
+      "unitPriceMMK": 40000,
+      "discountMMK": 0,
+      "totalMMK": 40000,
+      "serviceId": "SVC-BRAKE",
+      "repair": true
+     },
+     {
+      "id": "Q1-L2",
+      "kind": "part",
+      "label": "Brake part",
+      "quantity": 1,
+      "unitPriceMMK": 20000,
+      "discountMMK": 0,
+      "totalMMK": 20000,
+      "itemId": "ITEM-BRAKE",
+      "unit": "piece",
+      "source": "Shop",
+      "repair": true
+     }
+    ],
+    "subtotalMMK": 60000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 60000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   },
+   {
+    "id": "PAY-02",
+    "receiptId": "RC-2026-0002",
+    "jobId": "JOB-2026-0008",
+    "method": "Cash",
+    "amountAppliedMMK": 60000,
+    "cashTenderedMMK": 100000,
+    "changeMMK": 40000,
+    "verified": true,
+    "reference": null,
+    "at": "2026-10-28T10:00:00+06:30"
+   }
+  ],
+  "stockMovements": [
+   {
+    "id": "MOV-01",
+    "itemId": "ITEM-BRAKE",
+    "delta": -1,
+    "unit": "piece",
+    "type": "Job issue",
+    "jobId": "JOB-2026-0008",
+    "issueId": "ISS-01",
+    "actor": "U-AUNG",
+    "at": "2026-10-28T10:00:00+06:30",
+    "reason": "Approved brake repair",
+    "unitCostMMK": 12000
+   }
+  ],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 9,
+   "nextReceipt": 3,
+   "nextPayment": 3,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 2
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 4,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ },
+ "P16": {
+  "commissionRule": null,
+  "job0008": null,
+  "receipts": [
+   {
+    "id": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "issuedAt": "2026-10-10T09:10:00+06:30",
+    "lines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ],
+    "subtotalMMK": 30000,
+    "discountMMK": 0,
+    "roundingMMK": 0,
+    "totalMMK": 30000,
+    "kind": "Receipt"
+   }
+  ],
+  "payments": [
+   {
+    "id": "PAY-01",
+    "receiptId": "RC-2026-0001",
+    "jobId": "JOB-2026-0005",
+    "method": "KBZPay",
+    "amountAppliedMMK": 30000,
+    "cashTenderedMMK": null,
+    "changeMMK": 0,
+    "verified": true,
+    "reference": "DEMO-KBZ-001",
+    "at": "2026-10-10T09:10:00+06:30"
+   }
+  ],
+  "stockMovements": [],
+  "bookings": [
+   {
+    "id": "BK-01",
+    "vehicleId": "VEH-010",
+    "serviceId": "SVC-WASH",
+    "startAt": "2026-10-28T11:00:00+06:30",
+    "endAt": "2026-10-28T12:00:00+06:30",
+    "bayId": "BAY-1",
+    "status": "Booked",
+    "arrivedAt": null,
+    "jobId": null
+   },
+   {
+    "id": "BK-02",
+    "vehicleId": "VEH-008",
+    "serviceId": "SVC-OIL",
+    "startAt": "2026-10-29T09:00:00+06:30",
+    "endAt": "2026-10-29T10:00:00+06:30",
+    "bayId": null,
+    "status": "Requested",
+    "arrivedAt": null,
+    "jobId": null
+   }
+  ],
+  "cashClosings": [],
+  "followUps": [],
+  "activity": [],
+  "counters": {
+   "nextJob": 8,
+   "nextReceipt": 2,
+   "nextPayment": 2,
+   "nextVehicle": 11,
+   "nextCustomer": 3,
+   "nextMovement": 1
+  },
+  "openingBalances": {
+   "date": "2026-10-28",
+   "cashFloatMMK": 0,
+   "nonSalesCashMovementsMMK": 0
+  },
+  "items": [
+   {
+    "id": "ITEM-BRAKE",
+    "name": "Brake part",
+    "type": "Part",
+    "unit": "piece",
+    "fractional": false,
+    "onHand": 5,
+    "reorderLevel": 3,
+    "sellPriceMMK": 20000,
+    "latestPurchaseCostMMK": 12000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Parts",
+    "grade": null
+   },
+   {
+    "id": "ITEM-OIL",
+    "name": "Engine oil 5W-30",
+    "type": "Oil",
+    "unit": "liter",
+    "fractional": true,
+    "onHand": 4,
+    "reorderLevel": 5,
+    "sellPriceMMK": 8000,
+    "latestPurchaseCostMMK": 5000,
+    "supplierId": "SUP-02",
+    "brand": "Demo Oil",
+    "grade": "5W-30"
+   },
+   {
+    "id": "ITEM-CLEANER",
+    "name": "Brake cleaner",
+    "type": "Consumable",
+    "unit": "bottle",
+    "fractional": false,
+    "onHand": 1,
+    "reorderLevel": 2,
+    "sellPriceMMK": null,
+    "latestPurchaseCostMMK": 4000,
+    "supplierId": "SUP-01",
+    "brand": "Demo Cleaner",
+    "grade": null
+   }
+  ],
+  "jobsExtra": [
+   {
+    "id": "JOB-2026-0005",
+    "notes": [],
+    "nextServiceDueDate": "2026-10-27",
+    "nextServiceDueMileageKm": 68000,
+    "workStatus": "Completed",
+    "paymentStatus": "Paid",
+    "collectionStatus": "Collected",
+    "committedServiceLines": [
+     {
+      "id": "H5-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0006",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "In Progress",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H6-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   },
+   {
+    "id": "JOB-2026-0007",
+    "notes": [],
+    "nextServiceDueDate": null,
+    "nextServiceDueMileageKm": null,
+    "workStatus": "Completed",
+    "paymentStatus": "Unpaid",
+    "collectionStatus": "Not collected",
+    "committedServiceLines": [
+     {
+      "id": "H7-L1",
+      "kind": "service",
+      "label": "Computer diagnostic scan",
+      "quantity": 1,
+      "unitPriceMMK": 30000,
+      "discountMMK": 0,
+      "totalMMK": 30000,
+      "serviceId": "SVC-SCAN"
+     }
+    ]
+   }
+  ]
+ }
+}

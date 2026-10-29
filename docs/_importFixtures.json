@@ -1,0 +1,141 @@
+{
+ "vehicles": {
+  "columns": [
+   "plate",
+   "customerId",
+   "brand",
+   "model",
+   "year",
+   "size"
+  ],
+  "rows": [
+   {
+    "plate": "DEMO-020",
+    "customerId": "CUS-02",
+    "brand": "Toyota",
+    "model": "Aqua",
+    "year": 2021,
+    "size": "S"
+   },
+   {
+    "plate": "DEMO-008",
+    "customerId": "CUS-01",
+    "brand": "Toyota",
+    "model": "Vios Demo updated",
+    "year": 2020,
+    "size": "M"
+   },
+   {
+    "plate": "",
+    "customerId": "CUS-02",
+    "brand": "Honda",
+    "model": "City",
+    "year": 2022,
+    "size": "M"
+   }
+  ],
+  "correctedRow3": {
+   "plate": "DEMO-021",
+   "customerId": "CUS-02",
+   "brand": "Honda",
+   "model": "City",
+   "year": 2022,
+   "size": "M"
+  },
+  "duplicateKey": "plate"
+ },
+ "customers": {
+  "columns": [
+   "id",
+   "name",
+   "phone"
+  ],
+  "rows": [
+   {
+    "id": "CUS-03",
+    "name": "May Demo",
+    "phone": "09-0000-0003"
+   },
+   {
+    "id": "CUS-01",
+    "name": "Nila Demo",
+    "phone": "09-0000-0001"
+   }
+  ],
+  "duplicateKey": "id"
+ },
+ "inventory": {
+  "columns": [
+   "id",
+   "name",
+   "type",
+   "unit",
+   "onHand",
+   "reorderLevel",
+   "supplierId"
+  ],
+  "rows": [
+   {
+    "id": "ITEM-FILTER",
+    "name": "Oil filter demo",
+    "type": "Part",
+    "unit": "piece",
+    "onHand": 2,
+    "reorderLevel": 1,
+    "supplierId": "SUP-01"
+   }
+  ],
+  "duplicateKey": "id"
+ },
+ "suppliers": {
+  "columns": [
+   "id",
+   "name",
+   "contact"
+  ],
+  "rows": [
+   {
+    "id": "SUP-03",
+    "name": "Third Demo Supplier",
+    "contact": "Demo contact only"
+   }
+  ],
+  "duplicateKey": "id"
+ },
+ "services": {
+  "columns": [
+   "id",
+   "nameEN",
+   "fixedPriceMMK"
+  ],
+  "rows": [
+   {
+    "id": "SVC-DEMO",
+    "nameEN": "Sample inspection service",
+    "fixedPriceMMK": 20000
+   }
+  ],
+  "duplicateKey": "id"
+ },
+ "pastJobs": {
+  "columns": [
+   "id",
+   "vehicleId",
+   "date",
+   "totalMMK",
+   "paymentStatus",
+   "historical"
+  ],
+  "rows": [
+   {
+    "id": "JOB-2026-0004",
+    "vehicleId": "VEH-009",
+    "date": "2026-09-15",
+    "totalMMK": 10000,
+    "paymentStatus": "Paid",
+    "historical": true
+   }
+  ],
+  "duplicateKey": "id"
+ }
+}

@@ -1,0 +1,11 @@
+PASS  the shipped source uses no browser storage, no network API, no worker and no eval  — 37 files scanned, 0 hits
+PASS  the page loads no external file, font or script  — only local files are referenced
+PASS  the page writes nothing to localStorage, sessionStorage or cookies  — {"ls":0,"ss":0,"cookies":"","sw":null}
+PASS  the page makes no request to any other origin  — 38 local requests, 0 foreign
+PASS  no service worker controls the page  — {"sw":0,"workers":1}
+PASS  no screen asks for a password — there is no login  — password fields found: 0
+PASS  a refresh throws the session away and comes back to P01 and the Cashier role  — {"before":{"sc":"P11","role":"Owner"},"after":{"sc":"P01","role":"Cashier","screen":"S02"}}
+PASS  the storage is still empty after a reload  — {"ls":0,"ss":0}
+PASS  no console errors during the constraint run
+
+9/9 checks passed
