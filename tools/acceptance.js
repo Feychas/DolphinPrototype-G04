@@ -6,7 +6,7 @@
 
    Usage:  node tools/acceptance.js                          */
 const { Session, sleep } = require('./drive');
-const BASE = 'http://127.0.0.1:8080/index.html';
+const BASE = process.env.DOLPHIN_BASE || 'http://127.0.0.1:8080/index.html';
 
 const results = [];
 let s;

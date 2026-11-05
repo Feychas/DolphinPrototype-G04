@@ -7,7 +7,9 @@ const path = require('path');
 const os = require('os');
 const net = require('net');
 
-const CHROME = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
+const CHROME = process.platform === 'darwin'
+  ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  : 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 
 /* Each session picks a free debugging port. A fixed port lets a Chrome left
    over from an earlier run answer for a new session, which silently drives
