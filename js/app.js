@@ -188,7 +188,13 @@
       Store.dirty = false;
       this.render();
       const main = Util.el('#content');
-      if (main) main.focus();
+      /* Each screen starts at its heading. Keeping the previous screen's
+         scroll offset can place the new title underneath the sticky top bar. */
+      global.scrollTo(0, 0);
+      if (main) {
+        try { main.focus({ preventScroll: true }); }
+        catch (e) { main.focus(); }
+      }
     },
 
     accessNotice: function (screen) {

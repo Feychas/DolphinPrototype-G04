@@ -184,7 +184,8 @@ textarea:focus-visible,
   border: 1px solid var(--line); border-radius: var(--radius-sm);
   background: #fff;
 }
-#content .field input, #content .field select {
+#content .field input:not([type="checkbox"]):not([type="radio"]),
+#content .field select {
   padding: 10px 12px; min-height: 44px; max-width: none; width: 100%;
 }
 
@@ -389,20 +390,21 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
 }
 
 /* ---------------- forms ---------------- */
-.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; min-width: 0; }
 .field label { font-size: 14.5px; font-weight: 600; color: var(--ink-soft); }
 .field .req { color: var(--brand); }
 .field input, .field select, .field textarea {
   font: inherit; font-size: 15px; color: var(--ink);
   padding: 10px 12px; min-height: 44px;
   border: 1px solid var(--line); border-radius: var(--radius-sm);
-  background: #fff; width: 100%;
+  background: #fff; width: 100%; min-width: 0;
 }
 .field textarea { min-height: 90px; resize: vertical; }
 /* A check box or a radio is not a text field: it must keep its own size and
    must never be stretched to the full width of the column. */
 .field input[type="checkbox"], .field input[type="radio"],
-.check input[type="checkbox"], .radio-row input[type="checkbox"] {
+.check input[type="checkbox"], .check input[type="radio"],
+.radio-row input[type="checkbox"], .radio-row input[type="radio"] {
   width: 20px; height: 20px; min-height: 0; max-width: 20px;
   padding: 0; margin: 2px 0 0; flex: 0 0 auto;
   accent-color: var(--brand);
@@ -423,24 +425,32 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
 .check {
   display: inline-flex; align-items: flex-start; gap: 9px;
   font-size: 15px; font-weight: 500; color: var(--ink);
-  cursor: pointer; line-height: 1.45; max-width: 100%;
+  cursor: pointer; line-height: 1.45; width: 100%; max-width: 100%; min-width: 0;
 }
-.check > span { min-width: 0; overflow-wrap: anywhere; }
+.check > span {
+  flex: 1 1 auto; min-width: 12ch;
+  overflow-wrap: break-word; word-break: normal;
+}
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
 .form-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 18px; }
 .span-2 { grid-column: span 2; }
 /* A group of check boxes is a grid, not a row: a long service name wraps
    inside its own cell and never runs through the next control. */
 .radio-row {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr));
   gap: 10px 20px; align-items: start;
+  width: 100%; min-width: 0;
 }
 .radio-row label {
   display: flex; gap: 9px; align-items: flex-start;
   font-weight: 500; color: var(--ink); line-height: 1.45;
-  max-width: 100%; min-width: 0;
+  width: 100%; max-width: 100%; min-width: 0;
 }
-.radio-row label > span { min-width: 0; overflow-wrap: anywhere; }
+.radio-row label > span {
+  flex: 1 1 auto; min-width: 12ch;
+  overflow-wrap: break-word; word-break: normal;
+}
 .note { font-size: 13.5px; color: var(--muted); }
 .note-warn { color: var(--amber); font-weight: 600; }
 .note-danger { color: var(--red); font-weight: 600; }
