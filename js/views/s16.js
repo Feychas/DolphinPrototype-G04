@@ -445,11 +445,7 @@
 
       let out = UI.pageHeader({
         title: 'Stock adjustments',
-        subtitle: 'Record a count, an opened consumable, a write-off, a supplier return or a job return.',
-        actions: UI.btn('Back to inventory', {
-          action: 'nav', variant: 'secondary',
-          attrs: { nav: 'S10', params: JSON.stringify({ tab: 'inventory' }) }
-        })
+        subtitle: 'Record a count, an opened consumable, a write-off, a supplier return or a job return.'
       });
 
       out += UI.banner('plain', 'Demo only — nothing is ordered, returned or paid for',

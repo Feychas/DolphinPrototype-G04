@@ -20,8 +20,7 @@
 
       let out = UI.pageHeader({
         title: 'Job materials',
-        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · material is issued explicitly and deducted once',
-        actions: UI.btn('Back to job', { action: 'nav', variant: 'secondary', attrs: { nav: 'S06', params: JSON.stringify({ jobId: job.id }) } })
+        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · material is issued explicitly and deducted once'
       });
 
       if (ctx.role === 'Mechanic' && !mine) {

@@ -359,6 +359,21 @@
     }) || null;
   };
 
+  /* A job can be given a bay while it is still live. A job that already has
+     a bay stays eligible — a Manager may move it to another bay, and that
+     is how a Waiting-for-Parts job is released. Completed and cancelled
+     jobs are never eligible. */
+  R.bayEligible = function (job) {
+    if (!job) return false;
+    if (job.lifecycleStatus !== 'Open') return false;
+    if (job.workStatus === 'Completed' || job.workStatus === 'Cancelled') return false;
+    return true;
+  };
+
+  R.bayEligibleJobs = function () {
+    return (Store.state.jobs || []).filter(R.bayEligible);
+  };
+
   R.availableBays = function () {
     return Store.state.bays.filter(function (b) {
       return b.enabled && !R.bayOccupant(b.id);

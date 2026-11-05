@@ -85,19 +85,25 @@
       title: 'Payments posted',
       body: UI.table({
         label: 'Payments',
-        head: ['Payment', 'Receipt', 'Job', 'Method', 'Applied', 'Tendered', 'Change', 'Reference', 'Posted'],
+        head: ['Payment', 'Job', 'Method', 'Applied', 'Posted'],
         rows: (state.payments || []).map(function (p) {
-          return [
-            E(p.id),
-            E(p.receiptId),
-            E(p.jobId),
-            E(p.method),
-            { html: Util.mmk(p.amountAppliedMMK), className: 'num' },
-            { html: p.cashTenderedMMK === null || p.cashTenderedMMK === undefined ? '—' : Util.mmk(p.cashTenderedMMK), className: 'num' },
-            { html: p.changeMMK ? Util.mmk(p.changeMMK) : '—', className: 'num' },
-            E(p.reference || '—'),
-            E(Util.fmtDateTime(p.at))
-          ];
+          /* The key columns stay in the table; the rest opens under the row. */
+          return {
+            cells: [
+              E(p.id),
+              E(p.jobId),
+              E(p.method),
+              { html: Util.mmk(p.amountAppliedMMK), className: 'num' },
+              E(Util.fmtDateTime(p.at))
+            ],
+            detail: UI.dl([
+              ['Receipt', p.receiptId],
+              ['Cash tendered', p.cashTenderedMMK === null || p.cashTenderedMMK === undefined ? '—' : Util.mmk(p.cashTenderedMMK) + ' MMK'],
+              ['Change given', p.changeMMK ? Util.mmk(p.changeMMK) + ' MMK' : '—'],
+              ['Reference', p.reference || '—'],
+              ['Verified (demo)', p.verified ? 'Yes' : 'No']
+            ])
+          };
         }),
         empty: 'No payment has been posted in this session.'
       })
@@ -118,8 +124,7 @@
 
     let out = UI.pageHeader({
       title: 'Receipt and settlement',
-      subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : ''),
-      actions: UI.btn('Back to receipts', { action: 'nav', variant: 'secondary', attrs: { nav: 'S12' } })
+      subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : '')
     });
 
     out += UI.chips([
@@ -178,8 +183,8 @@
         if (totals.totalMMK > 0) {
           out += UI.card({
             title: 'Record the full payment',
-            subtitle: 'Only a full payment is accepted. A part payment is refused and nothing is posted.',
-            body: '<form data-form="payment.record" data-job-id="' + E(job.id) + '" data-payable="' + totals.totalMMK + '">' +
+            subtitle: 'Only the full amount is accepted.',
+            body: '<form id="pay-form" data-form="payment.record" data-job-id="' + E(job.id) + '" data-payable="' + totals.totalMMK + '">' +
               '<div class="field"><label for="pay-method">Method <span class="req" aria-hidden="true">*</span></label>' +
               '<select id="pay-method" name="method" required data-change="payment.method">' +
               '<option value="">Choose a method</option>' +
@@ -187,17 +192,21 @@
               '<option value="KBZPay">KBZPay (simulated)</option>' +
               '<option value="WavePay">WavePay (simulated)</option>' +
               '</select></div>' +
-              '<div class="field" id="pay-cash-block"><label for="pay-tendered">Cash tendered (MMK) <span class="req" aria-hidden="true">*</span></label>' +
+              '<div class="field" id="pay-cash-block" hidden><label for="pay-tendered">Cash tendered (MMK) <span class="req" aria-hidden="true">*</span></label>' +
               '<input type="number" id="pay-tendered" name="tenderedMMK" min="0" step="1" value="' +
               (totals.totalMMK) + '" data-live="payment.preview">' +
               '<p class="field-hint">The tendered amount has to cover the full payable of ' + Util.mmk(totals.totalMMK) + ' MMK.</p></div>' +
               '<div class="field" id="pay-wallet-block" hidden><label for="pay-ref">Transfer reference <span class="req" aria-hidden="true">*</span></label>' +
-              '<input type="text" id="pay-ref" name="reference" placeholder="DEMO-KBZ-002">' +
+              '<input type="text" id="pay-ref" name="reference" placeholder="DEMO-KBZ-002" data-live="payment.wallet">' +
               '<p class="field-hint">A demo reference only. No transfer is performed.</p></div>' +
-              '<div class="field" id="pay-verify-block" hidden><label class="check">' +
-              '<input type="checkbox" name="verified"> <span>Verified (demo)</span></label></div>' +
-              '<div id="pay-preview" class="banner banner-plain"></div>' +
-              '<div class="form-actions">' + UI.btn('Post payment', { variant: 'primary', icon: 'check', type: 'submit' }) + '</div>' +
+              '<div class="field" id="pay-verify-block" hidden><label class="check" for="pay-verified">' +
+              '<input type="checkbox" id="pay-verified" name="verified" data-live="payment.wallet"> <span>Verified (demo)</span></label>' +
+              '<p class="field-hint">Tick this only after you have checked the simulated transfer.</p></div>' +
+              '<div id="pay-preview" class="banner banner-plain" role="note" hidden></div>' +
+              '<div class="form-actions">' +
+              UI.btn('Post payment', { variant: 'primary', icon: 'check', type: 'submit', id: 'pay-submit', disabled: true }) +
+              '</div>' +
+              '<p class="note" id="pay-help">Choose a method to enable the payment button.</p>' +
               '</form>'
           });
         } else {
@@ -284,7 +293,8 @@
     }).join('');
 
     out += '<div class="preview-row"><span>Subtotal</span><span>' + Util.mmk(rc.subtotalMMK) + '</span></div>';
-    if (rc.discountMMK) out += '<div class="preview-row"><span>Discount</span><span>−' + Util.mmk(rc.discountMMK) + '</span></div>';
+    out += '<div class="preview-row"><span>Discount</span><span>' +
+      (rc.discountMMK ? '−' + Util.mmk(rc.discountMMK) : 'None') + '</span></div>';
     out += '<div class="preview-row"><span>Rounding to nearest 100</span><span>' + Util.mmk(rc.roundingMMK) + '</span></div>';
     out += '<div class="preview-row total"><span>Total</span><span>' + Util.mmk(rc.totalMMK) + ' MMK</span></div>';
     out += '</div>';

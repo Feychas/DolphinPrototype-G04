@@ -102,7 +102,7 @@
       '<div class="field"><label for="svc-price-l">Size L price (MMK)</label>' +
       '<input type="number" id="svc-price-l" name="priceL" min="0" step="1" value="' + E(size('L')) + '"></div>' +
       '</div></div>' +
-      '<label class="check"><input type="checkbox" name="isRepairForDemo"' +
+      '<label class="check" for="svc-repair-demo"><input type="checkbox" id="svc-repair-demo" name="isRepairForDemo"' +
       (service && service.isRepairForDemo ? ' checked' : '') + '> <span>Counts as repair work for the demo ' +
       '(it is part of the 50,000 MMK approval basis)</span></label>' +
       '</form>';
@@ -302,10 +302,10 @@
       '<input type="date" id="promo-end" name="endDate" required value="' + E(promo ? promo.endDate : '') + '"></div>' +
       '</div>' +
       '<div class="field"><span class="field-label" id="promo-services-label">Services <span class="req" aria-hidden="true">*</span></span>' +
-      '<div class="stack-sm" role="group" aria-labelledby="promo-services-label">' +
+      '<div class="radio-row" role="group" aria-labelledby="promo-services-label">' +
       services.map(function (s) {
         const on = chosen.indexOf(s.id) >= 0;
-        return '<label class="check"><input type="checkbox" name="serviceIds" value="' + E(s.id) + '"' + (on ? ' checked' : '') + '> ' +
+        return '<label class="check" for="promo-svc-' + E(s.id) + '"><input type="checkbox" id="promo-svc-' + E(s.id) + '" name="serviceIds" value="' + E(s.id) + '"' + (on ? ' checked' : '') + '> ' +
           '<span>' + E(s.nameEN) + '</span></label>';
       }).join('') +
       '</div></div>' +
@@ -326,7 +326,7 @@
       '<div class="field"><label for="promo-value">Value <span class="req" aria-hidden="true">*</span></label>' +
       '<input type="number" id="promo-value" name="value" min="0" step="1" value="' + E(promo ? promo.value : 0) + '"></div>' +
       '</div>' +
-      '<label class="check"><input type="checkbox" name="active"' + (!promo || promo.active ? ' checked' : '') + '> ' +
+      '<label class="check" for="promo-active"><input type="checkbox" id="promo-active" name="active"' + (!promo || promo.active ? ' checked' : '') + '> ' +
       '<span>Active</span></label>' +
       '</form>';
   }

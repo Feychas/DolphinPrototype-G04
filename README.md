@@ -17,7 +17,7 @@ served over HTTP (not opened as a `file://` path) so the browser will load the
 scripts.
 
 ```bash
-cd C:/KMUTT/DolphinPrototype
+cd ../DolphinPrototype
 python -m http.server 8080
 # or: npx serve -l 8080
 ```
@@ -59,11 +59,15 @@ js/data.js            the 16 scenario snapshots (generated from the fixture)
 data/02_Dummy_Data.json  the original fixture, kept unchanged as the source
 reference/01_Codex_Build_Guide.md  the written specification
 docs/TEST_RESULTS.md     the last test run, case by case
+docs/PROCESS_DESIGN_WORKFLOWS.md  the process design — 22 detailed workflows,
+                      the rule catalogue and the traceability matrix
 docs/_testlogs/          the raw output of every suite
 docs/VIEW_CONTRACT.md    how to add a screen or an action
 docs/_*.json             the fixture fragments that js/data.js was assembled from
-screenshots/          captured evidence (see section 8)
-tools/                the test harness (see section 7)
+screenshots/          captured evidence (see section 9)
+tools/                the test harness (see section 8)
+tools/acceptance.js    the acceptance checklist of the UI/UX review (§6 and §10)
+                      as executable checks
 ```
 
 ---
@@ -79,21 +83,21 @@ All twenty screens are implemented. Screen IDs follow the build guide.
 | S03 | Customer detail | Vehicle history, service records, next service due. |
 | S04 | Check-in | Mileage, size, service, damage, fuel, belongings. Guards: empty mileage is not zero, a vehicle with an open visit cannot get a second open job. |
 | S05 | Bay board | Three illustrative bays, available/assigned, plus the completed-uncollected queue. Assignment is Manager/Owner only; booking conflicts show a replan reason. |
-| S06 | Job list and detail | Filters, status chips, quote versions, activity. Manager actions: cancel, reopen, linked Redo, archive. |
+| S06 | Job list and detail | Filters, compact status chips and one **Next action** per job. The detail is tabbed — Overview, Quote & Approval, Work & Materials, Payment & Collection, Activity History — so nothing has to be hunted for on another screen. Manager actions: cancel, reopen, linked Redo, archive. |
 | S07 | Inspection and quotation | Live quote draft. Editing a quote never touches stock. |
 | S08 | Customer approval | Versioned decisions (Approved/Declined + channel + note). Mechanic sees a read-only summary. |
 | S09 | Job materials | Explicit material issue against the authorised quote line. A shortage issues nothing and shows Waiting for Parts. |
 | S10 | Inventory | Items, suppliers and purchase orders as tabs. |
 | S11 | Receive stock | Supplier, reference, date, item, quantity, unit, cost. Duplicate receipts are refused. |
-| S12 | Receipts, payment, collection, closure | Itemised draft receipt, cash/wallet payment, collection, close. |
+| S12 | Receipts, payment, collection, closure | Itemised draft receipt, cash/wallet payment, collection, close. The receipt shows the discount that was actually applied. |
 | S13 | Reminders | Service-due and awaiting-collection queues. |
 | S14 | Bookings | Requested → Booked, bay assignment, overdue/no-show. |
 | S15 | Catalogue | Services, promotions, discount requests. |
 | S16 | Stock adjustments | Count, consumable opened, write-off, supplier return, recoverable job return. Before/after preview, append-only ledger. |
-| S17 | Daily closing and corrections | Opening float, non-sales cash, counted vs expected. Corrections keep the old value. |
+| S17 | Daily closing and corrections | Opening float, non-sales cash, expected against counted, a mandatory explanation for a difference and a saved closing record. Corrections keep the old value, and the preview offers **Back to edit** and **Edit correction**. |
 | S18 | Import preview | Six import types, staging, duplicate and error handling, nothing is written until confirmed. |
-| S19 | Reports and commission | Revenue, collections, material cost, service performance, inventory, illustrative commission, promotions, Redo. |
-| S20 | Demo settings | Owner only. Language preview, bay names/enabled flags, role-preview explanation. |
+| S19 | Reports and commission | Grouped into **Sales**, **Inventory** and **Staff**, each group with a combined summary. One concise message per selected view — never a table of zeros. Date filters work; an impossible period shows the error alone. |
+| S20 | Demo settings | Owner only. Language preview, bay names/enabled flags, role-preview explanation and the workshop rules in one card. |
 
 ---
 
@@ -163,11 +167,64 @@ The **Demo controls** button in the topbar opens the demo panel.
 8. **S12** — mark the vehicle collected, then close the job. The job moves
    into history.
 
-Every step above is covered by an automated test (section 7).
+Every step above is covered by an automated test (section 8).
 
 ---
 
-## 6. The rules that are enforced
+## 6. The UI/UX review pass (2 November 2026)
+
+The prototype was revised against the team's **UI/UX review** draft of
+2 November 2026. That draft is a **proposal for discussion, not an approved
+requirement set**, and it does not override the build guide. The four scoping
+decisions taken with the owner are recorded in `docs/TEST_RESULTS.md` §11. What
+changed in the app:
+
+**Jobs detail (S06)** — the job page was restructured around the workflow
+instead of around the tables. The header carries the job ID, the plate and
+vehicle, the customer, the total, four compact status chips (Work, Approval,
+Payment, Collection) and exactly **one** prominent next action. Below it are
+five tabs — Overview, Quote & Approval, Work & Materials, Payment & Collection
+and Activity History — so a job can be finished without opening unrelated
+screens. Plate, mileage, car size and existing damage stay in Overview; the
+complete inspection notes stay with the quote version they were written for
+and open on demand.
+
+**Reports (S19)** — the flat list of report tables became three groups, Sales,
+Inventory and Staff, each with a combined summary of the figures that used to
+be spread across separate tables. A selected view shows **one** concise
+message when it has no data, and an impossible period shows the error alone
+instead of a table of zeros beside it.
+
+**Payment corrections (S17)** — the preview now offers **Back to edit** and
+**Edit correction**, and the entered values survive the round trip, including
+a full redraw. Only an authorised role confirms, and every confirmed
+correction is logged; the original receipt is never rewritten.
+
+**Payment posting (S12)** — the unlabeled checkbox and the blank strip that
+made it unclear whether the button was enabled are gone. The control carries a
+real label and the validation that matters stays visible.
+
+**Layout** — checkbox labels no longer collide with their text, clipped forms
+were reflowed, wide tables scroll inside their own region instead of pushing
+the page sideways, repeated helper text was shortened into tooltips, key
+columns were prioritised and long detail rows became expandable. The large
+**Back** buttons were removed in favour of breadcrumbs, and the sidebar is
+labelled on the desktop and collapses into a menu on a phone.
+
+**Demo boundaries** — the fixed light-theme section was removed from the
+user-facing settings, the promoted-price preview moved into Promotions and
+service pricing, the receipt shows the discount that was applied instead of a
+promotion report table, and the demo controls, demo payouts and demo labels
+stay inside demo mode.
+
+**Damage photos** — check-in and the job detail keep an optional photo record
+with its stage, its note, who added it and when. A record is appended, never
+edited or deleted. The prototype has no file storage, so a photo is a
+**written record**, not an uploaded image.
+
+---
+
+## 7. The rules that are enforced
 
 These come from the written build guide and are all enforced in `js/rules.js`.
 
@@ -228,9 +285,9 @@ These come from the written build guide and are all enforced in `js/rules.js`.
 
 ---
 
-## 7. Tests
+## 8. Tests
 
-Seven suites drive the real DOM in a headless Chrome over the DevTools
+Eight suites drive the real DOM in a headless Chrome over the DevTools
 Protocol. They assert on the shared in-memory state, not on screenshots.
 
 Start the static server first (`python -m http.server 8080`), then:
@@ -248,9 +305,12 @@ node tools/checklist2.js    #  28 checks — the remaining secondary paths:
                             #   commission adjustment, the bay guard
 node tools/constraints.js   #   9 checks — no backend, no storage, no network,
                             #   no login: the frontend-only constraints
+node tools/acceptance.js    #  40 checks — the acceptance checklist of the
+                            #   UI/UX review (§6 and §10), with populated,
+                            #   empty and error states
 ```
 
-Total **488 checks**, all passing. Every suite exits non-zero on failure, so
+Total **528 checks**, all passing. Every suite exits non-zero on failure, so
 they can be used as a gate.
 
 To regenerate the screenshots:
@@ -261,12 +321,12 @@ node tools/shots.js         # writes 37 PNGs into screenshots/
 
 The full results of the last run are recorded in
 [`docs/TEST_RESULTS.md`](docs/TEST_RESULTS.md), including the cases that were
-**not** individually exercised and the two changes made to the app during the
-test round.
+**not** individually exercised and the defects the suites found in the app
+during the test round.
 
 ---
 
-## 8. Screenshots
+## 9. Screenshots
 
 `screenshots/` holds 37 PNGs captured from the running app.
 
@@ -277,7 +337,7 @@ test round.
 
 ---
 
-## 9. Accessibility and layout notes
+## 10. Accessibility and layout notes
 
 * 16 px body text. Buttons, form fields, tabs and navigation items are at
   least 44 px tall; the compact variants (row actions, the small number
@@ -293,7 +353,7 @@ test round.
 
 ---
 
-## 10. Known limitations
+## 11. Known limitations
 
 These are real and are not fixed in this prototype.
 
@@ -344,10 +404,25 @@ These are real and are not fixed in this prototype.
 
 9. **Not deployed.** Nothing has been published anywhere. The app is served
    locally only, and was not deployed publicly.
+10. **The review draft is not an approved requirement.** The UI/UX review of
+    2 November 2026 is explicitly a proposal for discussion. Section 6
+    describes what was changed on the strength of it; the four scoping
+    decisions behind that pass are recorded in `docs/TEST_RESULTS.md` §11, and
+    anything the review left open — its §8 "missing requirements" section —
+    was deliberately left out of this pass.
+11. **A photo is a written record.** The prototype has no file storage, so a
+    damage photo is a stage, a note, an author and a timestamp. No image is
+    uploaded, stored or served.
+12. **Some review points are proved only partly.** `tools/acceptance.js`
+    checks the nine points of the review's §6 and the six of its §10 against
+    the running app, but a check can only assert what the DOM exposes. For
+    example "imported records, translations, receipts, permissions and backups
+    work with realistic data" can be shown with the demo presets and not with
+    a real import file.
 
 ---
 
-## 11. Licensing and data note
+## 12. Licensing and data note
 
 All people, vehicles, plates, phone numbers, prices, suppliers and job
 records are invented for this prototype. The only external names are generic

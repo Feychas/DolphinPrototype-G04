@@ -312,11 +312,16 @@
 
     const jobId = Store.nextId('job');
     const size = v.size;
+    const description = (v.description || '').trim();
+    const complaint = (v.complaint || '').trim();
     const job = {
       id: jobId, vehicleId: vehicleId, createdAt: Store.now(), mileageKm: mileage, size: size,
       requestedServiceIds: services,
+      description: description,
+      complaint: complaint,
       damage: (v.damage || '').trim(), fuelLevel: (v.fuelLevel || 'Half').trim(),
       belongings: (v.belongings || '').trim(), photoSample: 'sample-vehicle-condition',
+      damagePhotos: [],
       workStatus: 'Check-in', approvalStatus: 'Not required', paymentStatus: 'Unpaid',
       collectionStatus: 'Not collected', lifecycleStatus: 'Open',
       assignedStaffIds: [], bayId: null, completedAt: null, collectedAt: null, closedAt: null,
@@ -332,6 +337,24 @@
     Store.state.selectedJobId = jobId;
     Store.state.selectedVehicleId = vehicleId;
     Store.log('Check-in', jobId + ' created for ' + vehicle.plate + ' (' + mileage + ' km).');
+    if (description || complaint) {
+      Store.log('Check-in', jobId + ' description recorded: ' + (description || '—') +
+        (complaint ? ' · complaint: ' + complaint : '') + '.');
+    }
+    /* The optional check-in photo is kept as a photo record: the note, the
+       author and the time. Nothing is deleted afterwards. */
+    const photoNote = (v.damagePhotoNote || '').trim();
+    if (photoNote) {
+      job.damagePhotos.push({
+        id: Store.nextId('photo'),
+        stage: 'Before repair',
+        caption: photoNote,
+        at: Store.now(),
+        actor: Store.userId,
+        actorName: Store.user().name
+      });
+      Store.log('Check-in', jobId + ' check-in photo recorded: ' + photoNote + '.');
+    }
     App.toast('Check-in saved as ' + jobId + '.', 'info');
     App.go('S06', { jobId: jobId }, { force: true });
   };
@@ -342,36 +365,70 @@
   Actions.click['bay.assign'] = function (el) {
     if (!Store.isManagerial()) { App.toast('Only Owner or Manager can assign a bay.', 'warn'); return; }
     const preJob = el.getAttribute('data-job-id');
-    const jobs = Store.state.jobs.filter(function (j) {
-      return j.lifecycleStatus === 'Open' && j.workStatus !== 'Completed' && j.workStatus !== 'Cancelled' && !j.bayId;
-    });
+    const preBay = el.getAttribute('data-bay-id');
+    const jobs = Rules.bayEligibleJobs();
     const mechanics = Store.state.users.filter(u => u.role === 'Mechanic');
-    const body = '<form id="assign-form">' +
-      '<div class="field"><label for="assign-job">Job</label><select id="assign-job" name="jobId" required>' +
-      (preJob ? '<option value="' + E(preJob) + '">' + E(preJob) + '</option>' : '') +
-      jobs.filter(j => !preJob || j.id === preJob).map(function (j) {
-        const v = Store.vehicle(j.vehicleId);
-        return '<option value="' + E(j.id) + '"' + (preJob && j.id === preJob ? ' selected' : '') + '>' +
-          E(j.id + ' — ' + (v ? v.plate : '')) + '</option>';
-      }).join('') + '</select></div>' +
-      '<div class="field"><label for="assign-bay">Bay</label><select id="assign-bay" name="bayId" required>' +
-      Store.state.bays.map(function (b) {
-        const occ = Rules.bayOccupant(b.id);
-        const reason = !b.enabled ? ' (disabled)' : occ ? ' (occupied by ' + occ.id + ')' : '';
-        return '<option value="' + E(b.id) + '"' + (occ || !b.enabled ? ' disabled' : '') + '>' + E(b.name + reason) + '</option>';
-      }).join('') + '</select></div>' +
-      '<div class="field"><span class="field-label" id="mech-label">Mechanics</span>' +
-      '<div class="stack-sm" role="group" aria-labelledby="mech-label">' +
-      mechanics.map(function (m) {
-        return '<label class="check"><input type="checkbox" name="staffIds" value="' + E(m.id) + '"> <span>' + E(m.name) + '</span></label>';
-      }).join('') + '</div></div>' +
-      '<p class="note">A bay reservation (booking) and physical occupancy are separate. A future booking does not block a repair bay.</p>' +
-      '</form>';
+
+    /* The bay that was clicked is offered first and selected. */
+    const bays = Store.state.bays.slice().sort(function (a, b) {
+      if (a.id === preBay) return -1;
+      if (b.id === preBay) return 1;
+      return 0;
+    });
+
+    const jobOptions = jobs.map(function (j) {
+      const v = Store.vehicle(j.vehicleId);
+      const where = j.bayId && Store.bay(j.bayId) ? ' — currently in ' + Store.bay(j.bayId).name : '';
+      return '<option value="' + E(j.id) + '"' + (preJob && j.id === preJob ? ' selected' : '') + '>' +
+        E(j.id + (v ? ' — ' + v.plate : '') + where) + '</option>';
+    }).join('');
+
+    const bayOptions = bays.map(function (b) {
+      const occ = Rules.bayOccupant(b.id, preJob);
+      const reason = !b.enabled ? ' (disabled)' : occ ? ' (occupied by ' + occ.id + ')' : '';
+      return '<option value="' + E(b.id) + '"' + (preBay && b.id === preBay ? ' selected' : '') +
+        (occ || !b.enabled ? ' disabled' : '') + '>' + E(b.name + reason) + '</option>';
+    }).join('');
+
+    /* The mechanics of the job that is already selected are ticked, so the
+       assignment opens with the current state instead of an empty list. */
+    const preJobObj = preJob ? Store.job(preJob) : null;
+    const preStaff = (preJobObj && preJobObj.assignedStaffIds) || [];
+
+    let body;
+    if (!jobs.length) {
+      body = '<div class="banner banner-warn" role="note">' + UI.icon('alert', 20) +
+        '<div><strong>No job can be given a bay</strong>' +
+        '<p>Every job in this scenario is completed, cancelled or already closed. A new check-in creates an eligible job.</p></div></div>' +
+        '<div class="form-actions">' + UI.btn('Go to check-in', { action: 'nav', variant: 'primary', attrs: { nav: 'S04' } }) + '</div>';
+    } else {
+      body = '<form id="assign-form">' +
+        '<div class="field"><label for="assign-job">Job <span class="req" aria-hidden="true">*</span></label>' +
+        '<select id="assign-job" name="jobId" required' + (jobs.length ? '' : ' disabled') + '>' +
+        (preJob && !jobs.some(function (j) { return j.id === preJob; })
+          ? '<option value="' + E(preJob) + '" selected>' + E(preJob) + '</option>' : '') +
+        jobOptions +
+        '</select>' +
+        '<p class="field-hint">Only live jobs are listed. A job already in a bay can be moved.</p></div>' +
+        '<div class="field"><label for="assign-bay">Bay <span class="req" aria-hidden="true">*</span></label>' +
+        '<select id="assign-bay" name="bayId" required>' + bayOptions + '</select>' +
+        '<p class="field-hint">An occupied or disabled bay cannot be chosen.</p></div>' +
+        '<div class="field"><span class="field-label" id="mech-label">Mechanics <span class="req" aria-hidden="true">*</span></span>' +
+        '<div class="radio-row" role="group" aria-labelledby="mech-label">' +
+        mechanics.map(function (m) {
+          const on = preStaff.indexOf(m.id) >= 0;
+          return '<label class="check" for="assign-staff-' + E(m.id) + '"><input type="checkbox" id="assign-staff-' + E(m.id) + '" ' +
+            'name="staffIds" value="' + E(m.id) + '"' + (on ? ' checked' : '') + '> <span>' + E(m.name) + '</span></label>';
+        }).join('') + '</div>' +
+        '<p class="field-hint">At least one mechanic is needed before work can start.</p></div>' +
+        '<p class="note">A bay reservation (booking) and physical occupancy are separate. A future booking does not block a repair bay.</p>' +
+        '</form>';
+    }
 
     App.modal({
       title: 'Assign bay and mechanic',
       body: body,
-      actions: [
+      actions: jobs.length ? [
         { label: 'Cancel', variant: 'secondary' },
         {
           label: 'Assign', variant: 'primary', onClick: function () {
@@ -387,22 +444,27 @@
             const occ = bay ? Rules.bayOccupant(bay.id, v.jobId) : null;
             if (occ) errors.bayId = 'This bay is already occupied by ' + occ.id + '.';
             const job = Store.job(v.jobId);
-            if (job) {
-              const conflict = Rules.bookingOverlap(bay ? bay.id : null, Store.now(), Util.addDays(Store.now(), 1), null);
+            if (!job) errors.jobId = 'This job no longer exists.';
+            else if (!Rules.bayEligible(job)) errors.jobId = 'This job is no longer eligible for a bay.';
+            if (job && bay) {
+              const conflict = Rules.bookingOverlap(bay.id, Store.now(), Util.addDays(Store.now(), 1), null);
               if (conflict && !occ) errors.bayId = 'A booking (' + conflict.id + ') already reserves this bay. Ask a Manager to replan.';
             }
             if (Object.keys(errors).length) {
               fail(form, errors, 'The assignment was not saved.');
               return;
             }
+            const previousBay = job.bayId && Store.bay(job.bayId) ? Store.bay(job.bayId).name : null;
             job.bayId = v.bayId;
             job.assignedStaffIds = staffIds;
-            Store.log('Bay', job.id + ' assigned to ' + (bay ? bay.name : v.bayId) + ' (' + staffIds.map(function (id) { return Store.staffName(id); }).join(', ') + ').');
+            Store.log('Bay', job.id + ' assigned to ' + (bay ? bay.name : v.bayId) +
+              (previousBay && previousBay !== (bay ? bay.name : '') ? ' (moved from ' + previousBay + ')' : '') +
+              ' (' + staffIds.map(function (id) { return Store.staffName(id); }).join(', ') + ').');
             App.closeModal();
             ok(job.id + ' assigned to ' + (bay ? bay.name : v.bayId) + '.');
           }
         }
-      ]
+      ] : [{ label: 'Close', variant: 'primary' }]
     });
   };
 
@@ -495,9 +557,9 @@
     App.modal({
       title: 'Assign mechanics to ' + job.id,
       body: '<p>Managers can assign more than one mechanic. Each mechanic then sees this job in their own list.</p>' +
-        '<div class="stack-sm">' + mechanics.map(function (m) {
+        '<div class="radio-row">' + mechanics.map(function (m) {
           const on = (job.assignedStaffIds || []).indexOf(m.id) >= 0;
-          return '<label class="check"><input type="checkbox" name="staffIds" value="' + E(m.id) + '"' + (on ? ' checked' : '') + '> <span>' + E(m.name) + '</span></label>';
+          return '<label class="check" for="staff-' + E(m.id) + '"><input type="checkbox" id="staff-' + E(m.id) + '" name="staffIds" value="' + E(m.id) + '"' + (on ? ' checked' : '') + '> <span>' + E(m.name) + '</span></label>';
         }).join('') + '</div>',
       actions: [
         { label: 'Cancel', variant: 'secondary' },
@@ -512,6 +574,148 @@
         }
       ]
     });
+  };
+
+  /* §7 — the description and the customer complaint are editable while the
+     job is open. A settled or closed job keeps the text it was closed with. */
+  Actions.click['job.editDetails'] = function (el) {
+    const job = jobFrom(el);
+    if (!job) return;
+    if (!Store.isManagerial() && !Store.isCashier()) {
+      App.toast('Only the Owner, a Manager or the Cashier can change the job description.', 'warn');
+      return;
+    }
+    if (job.lifecycleStatus !== 'Open') {
+      App.toast('This job is closed. Its record stays as it was.', 'warn');
+      return;
+    }
+    if (isPriceLocked(job)) {
+      App.toast('The description of a settled job is locked. Use a Manager correction for the price.', 'warn');
+      return;
+    }
+    App.modal({
+      title: 'Edit the job description',
+      body: '<p>The fields open with the text that is already recorded. Saving writes the change to the job history.</p>' +
+        '<form id="details-form">' +
+        '<div class="field"><label for="job-description">Job description</label>' +
+        '<textarea id="job-description" name="description" rows="2">' + E(job.description || '') + '</textarea></div>' +
+        '<div class="field"><label for="job-complaint">Customer complaint</label>' +
+        '<textarea id="job-complaint" name="complaint" rows="2">' + E(job.complaint || '') + '</textarea></div>' +
+        '</form>',
+      actions: [
+        { label: 'Cancel', variant: 'secondary' },
+        {
+          label: 'Save changes', variant: 'primary', onClick: function () {
+            const form = Util.el('#details-form');
+            const v = values(form);
+            const description = (v.description || '').trim();
+            const complaint = (v.complaint || '').trim();
+            if (description === (job.description || '') && complaint === (job.complaint || '')) {
+              App.closeModal();
+              App.toast('Nothing was changed.', 'info');
+              return;
+            }
+            job.description = description;
+            job.complaint = complaint;
+            Store.log('Job', job.id + ' description updated by ' + Store.user().name + '.');
+            App.closeModal();
+            ok(job.id + ' description updated.');
+          }
+        }
+      ]
+    });
+  };
+
+  /* §7 — check-in damage photos. A photo record is added, never edited or
+     removed: the evidence and its author stay with the job. */
+  Actions.click['job.addPhoto'] = function (el) {
+    const job = jobFrom(el);
+    if (!job) return;
+    const mine = (job.assignedStaffIds || []).indexOf(Store.userId) >= 0;
+    if (!Store.isManagerial() && !Store.isCashier() && !(Store.isMechanic() && mine)) {
+      App.toast('Only the Owner, a Manager, the Cashier or a mechanic on this job can add a photo.', 'warn');
+      return;
+    }
+    if (job.lifecycleStatus !== 'Open') {
+      App.toast('This job is closed. Its photos stay as they were.', 'warn');
+      return;
+    }
+    App.modal({
+      title: 'Add a photo record to ' + job.id,
+      body: '<p>The photo is kept with the job: the note, who added it and when. A photo record cannot be edited or deleted later.</p>' +
+        '<form id="photo-form">' +
+        '<div class="field"><label for="photo-stage">Stage</label>' +
+        '<select id="photo-stage" name="stage">' +
+        '<option value="Before repair">Before repair</option>' +
+        '<option value="After repair">After repair</option>' +
+        '</select></div>' +
+        '<div class="field"><label for="photo-caption">What the photo shows</label>' +
+        '<input type="text" id="photo-caption" name="caption" placeholder="e.g. scratch on the front bumper">' +
+        '<p class="field-hint">A short note is enough.<span class="hint-tip" role="img" title="No upload service is connected, so the prototype records the note, the author and the time instead of an image file." aria-label="No upload service is connected, so the prototype records the note, the author and the time instead of an image file.">' +
+        UI.icon('info', 14) + '</span></p></div>' +
+        '</form>',
+      actions: [
+        { label: 'Cancel', variant: 'secondary' },
+        {
+          label: 'Add photo record', variant: 'primary', onClick: function () {
+            const form = Util.el('#photo-form');
+            const v = values(form);
+            const caption = (v.caption || '').trim();
+            if (!caption) {
+              App.toast('Write what the photo shows before saving it.', 'warn');
+              return { ok: false };
+            }
+            const stage = v.stage === 'After repair' ? 'After repair' : 'Before repair';
+            job.damagePhotos = job.damagePhotos || [];
+            job.damagePhotos.push({
+              id: Store.nextId('photo'),
+              stage: stage,
+              caption: caption,
+              at: Store.now(),
+              actor: Store.userId,
+              actorName: Store.user().name
+            });
+            Store.log('Photo', job.id + ' ' + stage.toLowerCase() + ' photo recorded by ' +
+              Store.user().name + ': ' + caption + '.');
+            App.closeModal();
+            ok('Photo record added to ' + job.id + '.');
+          }
+        }
+      ]
+    });
+  };
+
+  /* §7 — work performed and internal notes. The author and the time are
+     kept with every note. Only staff working on this job may write one. */
+  Actions.submit['job.note'] = function (form) {
+    const job = Store.job(form.getAttribute('data-job-id'));
+    if (!job) return fail(form, { text: 'Job not found.' });
+    const v = values(form);
+    const text = (v.text || '').trim();
+    if (!text) return fail(form, { text: 'Write the note before saving it.' });
+    if (!Store.isManagerial() && !Store.isMechanic()) {
+      App.toast('Only a mechanic on this job or a Manager can write a note.', 'warn');
+      return;
+    }
+    if (Store.isMechanic() && (job.assignedStaffIds || []).indexOf(Store.userId) < 0) {
+      App.toast('You can only write a note on a job assigned to you.', 'warn');
+      return;
+    }
+    if (job.lifecycleStatus !== 'Open') {
+      App.toast('This job is closed. Its notes stay as they were.', 'warn');
+      return;
+    }
+    job.notes = job.notes || [];
+    job.notes.push({
+      id: Util.uid('NOTE'),
+      kind: v.kind === 'internal' ? 'internal' : 'work',
+      text: text,
+      authorId: Store.userId,
+      authorName: Store.user().name,
+      at: Store.now()
+    });
+    Store.log('Job', job.id + ' note added by ' + Store.user().name + '.');
+    ok('Note added to ' + job.id + '.');
   };
 
   /* Extra work always becomes a new version on top of the approved scope. */
@@ -1438,7 +1642,9 @@
     ok('Payment posted. Receipt ' + receiptId + ' created and the price lines are now locked.');
   };
 
-  /* Cash and wallet fields are shown for the chosen method only. */
+  /* Cash and wallet fields are shown for the chosen method only. The submit
+     button stays disabled until the payment could actually be posted, and
+     the reason is written next to it. */
   Actions.live['payment.method'] = function (el) {
     const method = el.value;
     const cash = Util.el('#pay-cash-block');
@@ -1450,8 +1656,36 @@
     const preview = Util.el('#pay-preview');
     if (preview && method !== 'Cash') {
       preview.innerHTML = '<div>A wallet payment is simulated. Enter a demo reference and tick “Verified (demo)”.</div>';
+      preview.hidden = false;
     }
+    if (method === 'Cash' && Actions.live['payment.preview']) Actions.live['payment.preview']();
+    else refreshPaymentState();
   };
+
+  /* The enable state of the payment button, with the reason spelled out. */
+  function refreshPaymentState() {
+    const btn = Util.el('#pay-submit');
+    const help = Util.el('#pay-help');
+    if (!btn) return;
+    const form = btn.closest('form');
+    const methodEl = Util.el('#pay-method');
+    const method = methodEl ? methodEl.value : '';
+    let reason = '';
+    if (!method) reason = 'Choose a method to enable the payment button.';
+    else if (method === 'Cash') {
+      const payable = parseInt(form ? form.getAttribute('data-payable') || '0' : '0', 10);
+      const tendered = Util.parseIntStrict(Util.el('#pay-tendered') ? Util.el('#pay-tendered').value : '');
+      if (!isFinite(tendered)) reason = 'Enter the cash tendered to post the payment.';
+      else if (tendered < payable) reason = 'The tendered amount is below the payable of ' + Util.mmk(payable) + ' MMK.';
+    } else {
+      const ref = Util.el('#pay-ref');
+      const ok = Util.el('#pay-verified');
+      if (!ref || !ref.value.trim()) reason = 'Enter the simulated transfer reference.';
+      else if (!ok || !ok.checked) reason = 'Tick “Verified (demo)” to post a wallet payment.';
+    }
+    btn.disabled = !!reason;
+    if (help) help.textContent = reason || 'Ready to post. The payment is recorded in the demo ledger only.';
+  }
 
   Actions.live['payment.preview'] = function () {
     const box = Util.el('#pay-preview');
@@ -1462,17 +1696,21 @@
     const tendered = Util.parseIntStrict(tenderedEl ? tenderedEl.value : '');
     if (!isFinite(tendered)) {
       box.innerHTML = '<div>Enter the cash tendered to see the change.</div>';
-      return;
-    }
-    if (tendered < payable) {
+    } else if (tendered < payable) {
       box.innerHTML = UI.icon('info', 18) + '<div>Tendered ' + Util.mmk(tendered) +
         ' MMK is below the payable of ' + Util.mmk(payable) +
         ' MMK. A part payment is not accepted and nothing would be posted.</div>';
-      return;
+    } else {
+      box.innerHTML = UI.icon('info', 18) + '<div>Tendered ' + Util.mmk(tendered) + ' MMK — applied ' +
+        Util.mmk(payable) + ' MMK — change ' + Util.mmk(tendered - payable) + ' MMK.</div>';
     }
-    box.innerHTML = UI.icon('info', 18) + '<div>Tendered ' + Util.mmk(tendered) + ' MMK — applied ' +
-      Util.mmk(payable) + ' MMK — change ' + Util.mmk(tendered - payable) + ' MMK.</div>';
+    /* The strip only appears once there is something to say in it. */
+    box.hidden = false;
+    refreshPaymentState();
   };
+
+  /* A wallet reference or the verified tick also gates the button. */
+  Actions.live['payment.wallet'] = function () { refreshPaymentState(); };
 
   Actions.click['receipt.settleNoCharge'] = function (el) {
     const job = jobFrom(el);

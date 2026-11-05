@@ -1,6 +1,6 @@
 # Test results — Dolphin AutoTrack prototype
 
-**Run:** 28 October 2026
+**Run:** 5 November 2026
 **Machine:** Windows 11 · Google Chrome (headless, driven over the DevTools
 Protocol) · Node 22
 **App under test:** the static files in this folder, served by
@@ -8,7 +8,11 @@ Protocol) · Node 22
 
 Everything below is the result of actually running the suites in this
 folder. **No case is marked as passed that was not executed.** Where a case
-could not be tested, it is listed in section 9 instead of being counted.
+could not be tested, it is listed in section 12 instead of being counted.
+
+This run covers two things: the original build-guide behaviour (sections 3–9)
+and the **UI/UX review pass** — the §1–§3, §7 and §9 changes from the review
+draft of 2 November 2026 (sections 9 and 13).
 
 ---
 
@@ -25,6 +29,7 @@ node tools/screens.js             # 288 checks
 node tools/checklist.js           #  42 checks
 node tools/checklist2.js          #  28 checks
 node tools/constraints.js         #   9 checks
+node tools/acceptance.js          #  40 checks
 node tools/shots.js               # writes 37 PNGs into screenshots/
 ```
 
@@ -52,7 +57,8 @@ flag used to swap scenario without a confirmation dialog.
 | The written rules of the build guide | `tools/checklist.js` | 42 | **42 pass, 0 fail** |
 | The remaining secondary paths | `tools/checklist2.js` | 28 | **28 pass, 0 fail** |
 | No backend, no storage, no network | `tools/constraints.js` | 9 | **9 pass, 0 fail** |
-| **Total** | | **488** | **488 pass, 0 fail** |
+| The acceptance checklist of the UI/UX review | `tools/acceptance.js` | 40 | **40 pass, 0 fail** |
+| **Total** | | **528** | **528 pass, 0 fail** |
 
 Each suite also ends with a "no console errors" check, so an uncaught
 exception anywhere in the run fails the suite.
@@ -227,7 +233,51 @@ adjustment path, the bay-disable guard and the two reminder queues.
 
 ---
 
-## 9. The frontend-only constraints — `tools/constraints.js` (9/9)
+## 9. The UI/UX review acceptance checklist — `tools/acceptance.js` (40/40)
+
+The review draft of 2 November 2026 ends with an acceptance checklist (§6,
+nine points) and six additional checks (§10). This suite asserts each of
+them against the running prototype, in the **populated, empty and error
+state** wherever a state exists.
+
+### §6 — the acceptance checklist
+
+| # | Review point | Checks | Result |
+|---|---|---:|---|
+| 1 | Staff can identify the next valid action at a glance | the job header shows the four status chips (Work / Approval / Payment / Collection) and exactly one next action · the next action is a wired `Actions.click` handler, not a label · the job list names the next action for every row | Pass (3) |
+| 2 | A job can be completed without hunting through unrelated screens | the job page carries the five tabs Overview / Quote & Approval / Work & Materials / Payment & Collection / Activity History · the next action of a completed job is *Collect payment*, one click away on the receipt screen | Pass (2) |
+| 3 | Eligible jobs can be assigned to available bays and mechanics | the assignment modal lists eligible jobs (the dropdown is not empty), offers only free bays — every bay it leaves selectable is genuinely unoccupied — and lists the mechanics | Pass (1) |
+| 4 | Drafts are editable; approved/paid financial records remain protected and corrections logged | an approved and paid job offers no new quote version · a draft quote keeps its notes, its line editor and the catalogue · the correction keeps the typed reason after *Back to edit* and a redraw · a Cashier cannot confirm a correction · a confirmed correction is logged and the original receipt is unchanged | Pass (5) |
+| 5 | Daily closing calculates expected amounts and saves counted amounts with discrepancy explanations | the closing shows Expected, Counted and Difference with an explanation field · a difference asks for an explanation · the closing is saved with the counted amounts and the explanation and is flagged for Manager review | Pass (3) |
+| 6 | Reports are readable when populated or empty; date filters work | a populated report shows its figures and no no-data message · an empty period shows exactly one no-data message and no empty tables · a broken period shows the error and no figures · the date filter changes what the report shows | Pass (4) |
+| 7 | No raw HTML appears and links open the correct job | no screen of any role shows raw markup · a follow-up job link opens the right job · a report stays manager-only | Pass (3) |
+| 8 | Mobile tables/forms and English/Myanmar labels do not overlap or clip | at 390 px no checkbox overlaps its label and no screen overflows · the same holds in the Myanmar preview · the Myanmar preview really translates the labels | Pass (3) |
+| 9 | Core audit and approval workflows remain intact after UI simplification | the job history keeps check-in, quote, approval and material · an approved version stays read-only | Pass (2) |
+
+### §10 — the additional checks
+
+| # | Review point | Checks | Result |
+|---|---|---:|---|
+| 1 | Job details clearly distinguish complaint, inspection findings, requested work, work performed, staff notes and optional photos | the Overview carries the complaint, the requested work, the damage photos and the checklist · the Quote tab carries the inspection notes · the Work tab carries the material and the notes | Pass (1) |
+| 2 | Edit actions appear only for authorized, editable records; Save/Cancel and correction navigation retain entered values | editing opens prefilled fields with Save and Cancel · a settled job offers no edit action at all | Pass (2) |
+| 3 | Commission payout entry updates payout history without changing receipt revenue | a demo payout adds one payout row and leaves the receipt revenue untouched | Pass (1) |
+| 4 | No raw HTML is displayed in follow-up history; job links navigate correctly | the follow-up history shows real job links and no raw markup | Pass (1) |
+| 5 | Imported records, translations, receipts, permissions and backups work with realistic — not only demo — data | the import preview stages the rows before anything is saved · a receipt can be issued and is listed · the permission rule is enforced (§6.7) | Pass (3) |
+| 6 | Inventory, bay allocation, approvals and payment rules match the owner-approved decisions | all eight workshop rules are listed in the settings · a repair above 50,000 MMK needs its own approval · stock moves on an explicit material issue, not on a quoted line (base 5 → on hand 4 for one issued piece) | Pass (3) |
+| — | §1 — the fixed light-theme section is gone from the user settings | the settings screen carries no Appearance or light-theme section | Pass (1) |
+| — | §1 — the promoted price is not a report table on a general screen | the receipt prints the applied discount row and no general screen carries a promotion table | Pass (1) |
+| — | no console errors during the acceptance run | | Pass (1) |
+
+**Total: 40 checks, 40 pass, 0 fail.**
+
+A full sweep of all 16 presets × 4 roles × 20 screens (including every job
+detail screen and every tab of it) was also run for the raw-markup rule while
+this suite was written: no screen shows escaped markup as text. That sweep
+found three real defects, which are listed in section 13.
+
+---
+
+## 10. The frontend-only constraints — `tools/constraints.js` (9/9)
 
 These checks are the evidence for the "no database, no backend, no server
 APIs, no real authentication, no payment integration, no messaging, no
@@ -247,7 +297,7 @@ localStorage/IndexedDB/persistent storage, no background jobs" requirement.
 
 ---
 
-## 10. Where each written rule is checked
+## 11. Where each written rule is checked
 
 | Rule from the build guide | Checked by |
 |---|---|
@@ -271,12 +321,39 @@ localStorage/IndexedDB/persistent storage, no background jobs" requirement.
 | Discounts: Manager to 10 %, Owner above | exceptions P09 |
 | Full payment creates one receipt and one payment | checklist H3; journey 23, 24 |
 | Presets are deep copies, never merged, never replayed | scenarios 20–23; exceptions P07, P11 |
-| The commission rate is illustrative only | checklist M1, M2; checklist2 W1–W3; README §10.3 |
+| The commission rate is illustrative only | checklist M1, M2; checklist2 W1–W3; README §11.3 |
 | Myanmar labels only where supplied, English fallback elsewhere | checklist N2–N4 |
+
+### The rules of the UI/UX review draft (2 November 2026)
+
+The review is a **discussion draft** — "proposed changes, not approved
+requirements". These are the review points that are implemented and checked.
+
+| Review point | Checked by |
+|---|---|
+| §1 — compact status chips and one next action on the job detail | acceptance §6.1 (3 checks) |
+| §1 — Reports grouped into Sales / Inventory / Staff with combined summaries | acceptance §6.6; exceptions P14, P15 |
+| §1 — one concise no-data message per selected report view | acceptance §6.6; screens (empty-state audit) |
+| §1 — a fixed Job dropdown, a free bay and a mechanic before work starts | acceptance §6.3; exceptions P02, P05 |
+| §1 — *Back to edit / Edit correction* with the entered values retained | acceptance §6.4 (2 checks) |
+| §1 — no checkbox/label collision, no clipped payment form, no table overflow | acceptance §6.8 (3 checks); screens (desktop + mobile audits) |
+| §1 — the fixed light-theme section removed from the user settings | acceptance §1 (1 check) |
+| §1 — the promoted-price preview moved out of the general screens | acceptance §1 (1 check) — the receipt prints the applied discount, no general screen carries a promotion table |
+| §1 — demo controls, demo payouts and demo labels confined to demo mode | checklist M1–M2; checklist2 W1–W3 |
+| §1 — labelled sidebar, collapsible mobile menu, breadcrumbs, fewer Back buttons | screens (sidebar, drawer, focus); acceptance §6.8 |
+| §1 — key columns with expandable detail rows | screens (table audit); acceptance §6.1, §6.4 |
+| §1 — concise summaries, full inspection notes on demand, complete notes kept | acceptance §6.9, §10.1 |
+| §2 — the follow-up history shows no raw markup and the job link works | acceptance §6.7, §10.4 |
+| §2 — the daily closing saves, explains and notifies the Manager | acceptance §6.5 (3 checks) |
+| §2 — the payment posting form shows its state and its validation | screens (label audit); acceptance §6.8 |
+| §3 — the job page header, the five tabs and the workflow | acceptance §6.1, §6.2 (5 checks) |
+| §4 — nothing from the "do not remove" list was removed | exceptions P02–P08; journey; acceptance §6.9 |
+| §7 — check-in damage photos with a history and permissions | acceptance §7 check (1 check) |
+| §9 — the eight business rules are listed and enforced | acceptance §10.6 (3 checks); checklist B2, G1 |
 
 ---
 
-## 11. What is **not** covered
+## 12. What is **not** covered
 
 Honest list of the gaps. None of these is counted as a pass above.
 
@@ -287,43 +364,138 @@ Honest list of the gaps. None of these is counted as a pass above.
    in this folder were therefore **derived from `reference/01_Codex_Build_Guide.md`**
    — its "non-negotiable behaviour" list and its per-screen specifications.
    If the original checklist file appears later, it should be compared
-   line by line against sections 3–9 above; the acceptance criteria may not
+   line by line against sections 3–10 above; the acceptance criteria may not
    match one to one.
 2. **No real integration is tested, because the prototype must not have
    one.** There is no authentication, payment gateway, messaging, database
-   or background worker to test. Section 9 verifies their *absence* instead
+   or background worker to test. Section 10 verifies their *absence* instead
    — it cannot verify that a real integration behaves correctly.
-3. **Only Chromium was tested.** The suites drive the Chrome DevTools
+3. **The review's §8 was left out on purpose.** The review asks for a list of
+   missing requirements to verify — individual logins, server-side role
+   checks, real Excel import, full Myanmar coverage, real photo upload,
+   receipt sharing, full audit history, supplier coverage, inventory
+   coverage, notifications, archiving. None of it was implemented in this
+   pass; it was agreed that §8 is a separate round of work, not a UI pass.
+4. **A "photo" is a written record, not a file.** There is no upload service
+   and no storage in a frontend-only prototype, so a check-in damage photo
+   is a note with a stage, an author and a time, kept with the job and shown
+   in its history. The evidence and the permission rule are real; the image
+   itself is not stored, and no claim is made about a before/after image
+   pair.
+5. **§10.5 is only partly provable here.** "Backups" and "realistic, not
+   only demo, data" cannot be tested in a prototype that keeps everything in
+   memory and ships one fixture: there is nothing to back up, and no second
+   data source exists. What is checked is the import preview, the
+   translation preview, the receipt flow and the permission rule.
+6. **The review draft is not an approved requirement.** Every §1–§3, §7 and
+   §9 change in this round is a **proposed** change from a discussion
+   document dated 2 November 2026. The rules themselves were not changed by
+   the UI work; where the review and the written build guide disagreed, the
+   build guide still governs the behaviour and the review governs the
+   presentation.
+7. **Only Chromium was tested.** The suites drive the Chrome DevTools
    Protocol; Firefox and Safari were not available on this machine, so no
    cross-browser result is claimed. The app uses no framework and no
    browser-specific API beyond `fetch`-free standard DOM, but that is an
    argument, not a test.
-4. **The visual result was compared by eye, not pixel-diffed.** The 20
+8. **The visual result was compared by eye, not pixel-diffed.** The 20
    reference PNGs were read and matched by hand (warm ivory background,
    white cards, dark text, restrained orange action, one sidebar, the same
    table and card shapes). There is no automated image comparison, so
    "matches the design guide" is a judgement, not a measurement.
-5. **Some screens were opened but not every button on them was pressed.**
+9. **Some screens were opened but not every button on them was pressed.**
    The 288-check screen sweep proves every screen renders for every role,
    is reachable or refused, has no overflow, has labels and has visible
-   focus. The *behaviour* of a button is covered by the journey, exception
-   and checklist suites — for the buttons those suites do not exercise, the
-   evidence is "the button exists and is enabled", not "the button works".
-6. **Only the English interface was walked end to end.** The Myanmar
-   preview is checked for the supplied service labels and the
-   partial-translation notice (checklist N2–N4); the rest of the Burmese
-   interface words are placeholders and were not proofread.
-7. **The commission rate is a fixture value, not a business value.** The
+   focus. The *behaviour* of a button is covered by the journey, exception,
+   checklist and acceptance suites — for the buttons those suites do not
+   exercise, the evidence is "the button exists and is enabled", not "the
+   button works".
+10. **Only the English interface was walked end to end.** The Myanmar
+   preview is checked for the supplied service labels, the
+   partial-translation notice (checklist N2–N4) and for overlap and
+   overflow at 390 px (acceptance §6.8); the rest of the Burmese interface
+   words are placeholders and were not proofread.
+11. **The commission rate is a fixture value, not a business value.** The
    10 % in P14 is illustrative and labelled as such in the app. No check
    can confirm that it is a real workshop rate, because it is not one.
-8. **Performance was not measured.** There are no timing assertions and no
+12. **Performance was not measured.** There are no timing assertions and no
    load tests; the prototype holds one in-memory snapshot.
-9. **Nothing was deployed.** The app was served locally only. No public
+13. **Nothing was deployed.** The app was served locally only. No public
    URL exists, and no deployment was requested.
 
 ---
 
-## 12. Changes made to the app during this test round
+## 13. Changes made to the app during this test round
+
+### The UI/UX review pass (the review draft of 2 November 2026)
+
+Scope: §1–§3, §7 and §9, as agreed. §8 (missing requirements) was left out
+of this pass on purpose.
+
+* **The job detail was restructured (§1, §3).** The four oversized status
+  cards became four compact chips, and one prominent **Next action** was
+  added — always a wired action, never a label. The job page now carries the
+  five tabs of the review: Overview, Quote & Approval, Work & Materials,
+  Payment & Collection, Activity History (`js/views/s06.js`).
+* **Reports were grouped (§1).** One screen with three groups — **Sales**,
+  **Inventory**, **Staff** — each opening with a combined summary of the
+  figures its own drill-downs also show, so a number never appears twice in
+  two shapes. A period with nothing in it now shows **one** no-data message
+  and no empty tables; a period that cannot be reported shows the error and
+  no figures beside it (`js/views/s19.js`).
+* **The correction flow was completed (§2).** The preview carries *Back to
+  edit* and *Edit correction*; the typed values survive a redraw (they live
+  in `Store.draft.correction`); only an Owner or a Manager can confirm; every
+  confirmed correction is logged and the original receipt is kept exactly as
+  it was issued (`js/act-closing.js`, `js/views/s17.js`).
+* **The payment posting form was cleaned up (§2, A1).** The empty preview
+  strip is no longer rendered as a blank box — it appears only when it has
+  something to say — and the method, the tendered amount, the demo reference
+  and the *Verified (demo)* tick all carry a label (`js/views/s12.js`).
+* **Check-in damage photos were added (§7).** A photo *record* — stage, note,
+  who added it and when — can be added while the job is open, is listed on
+  the Overview and in the Activity History, and is never edited or deleted
+  afterwards. The check-in form takes an optional note about the photo
+  (`js/actions.js`, `js/views/s04.js`, `js/views/s06.js`). There is no upload
+  service in a frontend-only prototype, so a record is a written note, not a
+  file — see section 12.
+* **Key columns with expandable detail rows (§1).** `UI.table` gained a
+  `detail` cell: the row keeps its key columns and the rest opens under it
+  behind a *Details* button. Applied to the job list, the quote versions, the
+  posted payments, the follow-up history and the daily and monthly report
+  tables (`js/ui.js`, `js/app.js`).
+* **Helper text was shortened and moved into tooltips (§1).** `UI.hint` gives
+  a one-line hint with the long explanation behind an info icon that is
+  announced to a screen reader as well (`js/ui.js`, `css/styles.css`).
+* **The large Back buttons were removed (§1).** The breadcrumb now carries
+  the way back — Customers for the registration and check-in screens,
+  Inventory for the stock screens, the job for the job screens. The *Back to
+  edit* button of the correction preview was kept, because it is part of the
+  correction requirement, not a way back (`js/app.js`).
+* **The eight workshop rules are listed in one place (§9).** The settings
+  screen carries a *Workshop rules* card that states all eight rules in
+  plain words, so the owner can see what the prototype enforces
+  (`js/views/s20.js`).
+
+### Three defects the new checks found
+
+* **The bay board showed two buttons as escaped markup.** The *Assign* button
+  of the waiting-for-a-bay table and the *Move* button of the in-a-bay table
+  were passed to `UI.table` as plain strings, so the table escaped them and
+  the browser showed the raw `<button …>` as text. Both are now HTML cells,
+  and the buttons work (`js/views/s05.js`).
+* **The catalogue table of the quote screen showed `<span class="muted">` as
+  text**, and the approval screen showed `<br><span …>` as text, for the
+  same reason (`js/views/s07.js`, `js/views/s08.js`). A full sweep of all
+  16 presets × 4 roles × 20 screens — including every job detail screen and
+  every tab of it — now finds no escaped markup anywhere.
+* **A closed and paid job without a quote version offered a fresh quote
+  draft.** The draft was created for any job that had no quote yet, which
+  included the paid, closed JOB-2026-0005. A draft is now only offered for a
+  job that is open and whose price is not settled; the screen states that the
+  price of the job is settled instead (`js/views/s07.js`).
+
+### From the earlier round (still in the code)
 
 * **S20 — the bay switch is put back when a save is refused.** Before the
   fix, unchecking a bay that still had a job in it showed the error
@@ -347,7 +519,7 @@ Everything else in the app behaved as specified and was left alone.
 
 ---
 
-## 13. Manual and visual checks
+## 14. Manual and visual checks
 
 * **Desktop 1440 px** — every screen swept for overflow, labels, button
   names and console errors (section 6).
@@ -359,3 +531,7 @@ Everything else in the app behaved as specified and was left alone.
   role.
 * **37 screenshots** in `screenshots/`: 14 desktop journey, 15 exception
   presets (one per P02–P16), 8 narrow-mobile (390 px).
+* **The review pass was swept by eye as well** — the job detail, the reports
+  in their three groups, the correction preview, the bay board and the
+  settings page were read at 1440 px and at 390 px, in English and in the
+  Myanmar preview.

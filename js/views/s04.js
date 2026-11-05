@@ -13,8 +13,7 @@
 
       let out = UI.pageHeader({
         title: 'Vehicle check-in',
-        subtitle: 'Record the visit details. Mileage is per visit and cannot be empty.',
-        actions: UI.btn('Back to vehicles', { action: 'nav', variant: 'secondary', attrs: { nav: 'S02' } })
+        subtitle: 'Record the visit details. Mileage is per visit and cannot be empty.'
       });
 
       if (!vehicle) {
@@ -59,7 +58,9 @@
           '<div class="form-grid">' +
           UI.field({
             id: 'ci-mileage', name: 'mileageKm', label: 'Mileage (km)', type: 'number', min: 0, step: 1,
-            required: true, value: sample.mileageKm, hint: 'Must be zero or more and not below the latest recorded visit unless a Manager confirms it.'
+            required: true, value: sample.mileageKm,
+            hint: 'Zero or more. A lower figure than the last visit needs a Manager.',
+            tip: 'Must be zero or more and not below the latest recorded visit unless a Manager confirms it.'
           }) +
           '<div class="field"><label for="ci-size">Size <span class="req" aria-hidden="true">*</span></label>' +
           '<select id="ci-size" name="size" required>' +
@@ -70,7 +71,18 @@
           services.map(s => '<option value="' + E(s.id) + '"' + (s.id === sample.requestedServiceIds[0] ? ' selected' : '') + '>' +
             E(s.nameEN + (s.fixedPriceMMK !== null && s.fixedPriceMMK !== undefined ? ' — ' + Util.mmk(s.fixedPriceMMK) + ' MMK' : '')) +
             '</option>').join('') + '</select>' +
-          '<p class="field-hint">The first selected service starts the quote. More lines can be added on the Inspection screen.</p></div>' +
+          '<p class="field-hint">The first service starts the quote.<span class="hint-tip" role="img" title="More lines can be added on the Inspection screen." aria-label="More lines can be added on the Inspection screen.">' +
+          UI.icon('info', 14) + '</span></p></div>' +
+          '<div class="field span-2"><label for="ci-description">Job description</label>' +
+          '<textarea id="ci-description" name="description" rows="2" placeholder="What the customer asked for">' +
+          E(sample.description || '') + '</textarea>' +
+          '<p class="field-hint">A short summary of the work requested.<span class="hint-tip" role="img" title="The mechanic adds the findings on the Inspection screen." aria-label="The mechanic adds the findings on the Inspection screen.">' +
+          UI.icon('info', 14) + '</span></p></div>' +
+          '<div class="field span-2"><label for="ci-complaint">Customer complaint</label>' +
+          '<textarea id="ci-complaint" name="complaint" rows="2" placeholder="What the customer reported, in their own words">' +
+          E(sample.complaint || '') + '</textarea>' +
+          '<p class="field-hint">Optional.<span class="hint-tip" role="img" title="The customer’s own words are kept as they were said." aria-label="The customer’s own words are kept as they were said.">' +
+          UI.icon('info', 14) + '</span></p></div>' +
           '<div class="field"><label for="ci-damage">Existing damage</label>' +
           '<textarea id="ci-damage" name="damage" rows="2">' + E(sample.damage) + '</textarea></div>' +
           '<div class="field"><label for="ci-fuel">Fuel level</label>' +
@@ -80,13 +92,12 @@
           '<div class="field span-2"><label for="ci-belongings">Belongings left in the vehicle</label>' +
           '<input type="text" id="ci-belongings" name="belongings" value="' + E(sample.belongings) + '"></div>' +
           '</div>' +
-          '<div class="field"><label class="check"><input type="checkbox" name="confirmLowerMileage"> ' +
+          '<div class="field"><label class="check" for="ci-confirm-mileage"><input type="checkbox" id="ci-confirm-mileage" name="confirmLowerMileage"> ' +
           '<span>Manager confirms this mileage is a correction of an earlier entry</span></label></div>' +
-          '<div class="field"><span class="field-label">Vehicle condition photo</span>' +
-          '<div class="bay-card" style="display:flex;align-items:center;gap:12px">' +
-          '<span class="kpi-icon" style="background:var(--bg-alt);color:var(--muted)">' + UI.icon('car', 22) + '</span>' +
-          '<span class="muted small">Sample placeholder image (demo). No upload service is connected — a real photo is not required.</span>' +
-          '</div></div>' +
+          '<div class="field"><label for="ci-photo">Check-in photos (optional)</label>' +
+          '<input type="text" id="ci-photo" name="damagePhotoNote" placeholder="What the photo shows, e.g. front bumper scratch">' +
+          '<p class="field-hint">A photo note for the check-in evidence.<span class="hint-tip" role="img" title="The prototype stores a photo record with a note, author and time. No upload service is connected, so no image file is stored." aria-label="The prototype stores a photo record with a note, author and time. No upload service is connected, so no image file is stored.">' +
+          UI.icon('info', 14) + '</span></p></div>' +
           '<div class="form-actions">' +
           UI.btn('Create demo job', { variant: 'primary', icon: 'check', type: 'submit' }) +
           UI.btn('Cancel', { action: 'nav', variant: 'secondary', attrs: { nav: 'S02' } }) +

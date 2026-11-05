@@ -129,23 +129,49 @@
       '</div></div>';
   };
 
+  /* A row of a table may carry a `detail`: the columns that are not needed for
+     a first look are then folded into a row that opens on demand. This keeps
+     the key columns readable instead of pushing them off the screen. */
+  let tableSeq = 0;
+
   UI.table = function (o) {
-    const head = (o.head || []).map(h => '<th scope="col">' + (h.html || E(h.label !== undefined ? h.label : h)) + '</th>').join('');
+    const rows = o.rows || [];
+    const hasDetail = rows.some(function (r) {
+      return r && !Array.isArray(r) && r.detail;
+    });
+    const headCells = (o.head || []).map(function (h) {
+      return '<th scope="col">' + (h.html || E(h.label !== undefined ? h.label : h)) + '</th>';
+    });
+    if (hasDetail) headCells.push('<th scope="col" class="col-detail">Detail</th>');
+    const head = headCells.join('');
+    const cols = Math.max(1, headCells.length);
     let body;
-    if (!o.rows || !o.rows.length) {
-      body = '<tr><td class="empty-cell" colspan="' + Math.max(1, (o.head || []).length) + '">' +
+    if (!rows.length) {
+      body = '<tr><td class="empty-cell" colspan="' + cols + '">' +
         E(o.empty || 'Nothing to show yet.') + '</td></tr>';
     } else {
-      body = o.rows.map(function (r) {
-        /* a row is either an array of cells or {attr, cells:[...]} */
-        const cells = Array.isArray(r) ? r : (r.cells || []);
-        const attr = Array.isArray(r) ? '' : (r.attr || '');
-        return '<tr' + attr + '>' + cells.map(function (c) {
+      body = rows.map(function (r) {
+        /* a row is either an array of cells or {attr, cells:[...], detail} */
+        const isObj = r && !Array.isArray(r);
+        const cells = isObj ? (r.cells || []) : r;
+        const attr = isObj ? (r.attr || '') : '';
+        const detail = isObj ? r.detail : null;
+        const id = detail ? 'row-' + (++tableSeq) : '';
+        const main = '<tr' + attr + '>' + cells.map(function (c) {
           const isHead = c && c.head;
           const html = c && c.html !== undefined ? c.html : E(c === null || c === undefined ? '—' : c);
           const cls = c && c.className ? ' class="' + E(c.className) + '"' : '';
           return isHead ? '<th scope="row"' + cls + '>' + html + '</th>' : '<td' + cls + '>' + html + '</td>';
-        }).join('') + '</tr>';
+        }).join('') +
+          (hasDetail
+            ? '<td class="col-detail">' + (detail
+              ? '<button type="button" class="row-toggle" data-row-toggle="' + id +
+                '" aria-expanded="false" aria-controls="' + id + '">Details</button>'
+              : '') + '</td>'
+            : '') + '</tr>';
+        if (!detail) return main;
+        return main + '<tr class="row-detail" id="' + id + '" hidden><td colspan="' + cols + '">' +
+          detail + '</td></tr>';
       }).join('');
     }
     return '<div class="table-scroll" tabindex="0" role="region" aria-label="' + E(o.label || 'Data table') + '">' +
@@ -157,6 +183,18 @@
     return '<div class="empty-state"><p>' + E(msg) + '</p>' + (action || '') + '</div>';
   };
 
+  /* A short summary with the full text one click away. The complete text is
+     always kept — only the reading is shortened. */
+  UI.disclosure = function (summaryText, fullText, label) {
+    const full = (fullText || '').trim();
+    if (!full) return '<p class="summary-line muted">Nothing recorded yet.</p>';
+    const short = full.length > 150 ? full.slice(0, 150).replace(/\s+\S*$/, '') + '…' : full;
+    if (short === full) return '<p class="summary-line">' + E(full) + '</p>';
+    return '<p class="summary-line">' + E(short) + '</p>' +
+      '<details class="disclosure"><summary>' + E(label || 'Show the full text') + '</summary>' +
+      '<div class="disclosure-body">' + E(full) + '</div></details>';
+  };
+
   UI.banner = function (kind, title, text) {
     const cls = kind === 'warn' ? 'banner-warn' : kind === 'danger' ? 'banner-danger' : kind === 'plain' ? 'banner-plain' : 'banner-info';
     const ic = kind === 'warn' ? 'alert' : kind === 'danger' ? 'alert' : kind === 'plain' ? 'info' : 'info';
@@ -164,12 +202,16 @@
       '<div><strong>' + E(title) + '</strong>' + (text ? '<p>' + text + '</p>' : '') + '</div></div>';
   };
 
-  UI.tabs = function (tabs, active, name) {
+  /* Tabs drive a parameter of the current screen. `paramKey` says which one:
+     the job list uses "tab" for its filters, the job card uses "section" for
+     its five tabs, so the two never overwrite each other. */
+  UI.tabs = function (tabs, active, name, paramKey) {
     return '<div class="tabs" role="tablist" aria-label="Sections">' + tabs.map(function (t) {
       const on = t.id === active;
       return '<button type="button" role="tab" aria-selected="' + (on ? 'true' : 'false') +
         '" class="tab' + (on ? ' tab-active' : '') + '" data-tab="' + E(t.id) + '"' +
-        (name ? ' data-tab-group="' + E(name) + '"' : '') + '>' + E(t.label) + '</button>';
+        (name ? ' data-tab-group="' + E(name) + '"' : '') +
+        (paramKey ? ' data-tab-param="' + E(paramKey) + '"' : '') + '>' + E(t.label) + '</button>';
     }).join('') + '</div>';
   };
 
@@ -182,11 +224,23 @@
   };
 
   /* ---------------- form controls ---------------- */
+  /* A short line of help. The long explanation is kept in a tooltip, so the
+     same sentence does not repeat on every screen. The full text stays
+     reachable for a screen reader through aria-label. */
+  UI.hint = function (text, tip, id) {
+    if (!text && !tip) return '';
+    return '<p class="field-hint"' + (id ? ' id="' + E(id) + '"' : '') + '>' +
+      (text ? E(text) : '') +
+      (tip ? '<span class="hint-tip" role="img" title="' + E(tip) + '" aria-label="' + E(tip) + '">' +
+        UI.icon('info', 14) + '</span>' : '') +
+      '</p>';
+  };
+
   UI.field = function (o) {
     const id = o.id || Util.uid('f');
     const req = o.required ? ' <span class="req" aria-hidden="true">*</span>' : '';
     const describedBy = [];
-    if (o.hint) describedBy.push(id + '-hint');
+    if (o.hint || o.tip) describedBy.push(id + '-hint');
     if (o.error) describedBy.push(id + '-err');
     const desc = describedBy.length ? ' aria-describedby="' + describedBy.join(' ') + '"' : '';
     let control;
@@ -204,7 +258,10 @@
           return '<option value="' + E(val) + '"' + sel + (op.disabled ? ' disabled' : '') + '>' + E(lab) + '</option>';
         }).join('') + '</select>';
     } else if (o.type === 'checkbox') {
-      control = '<label class="check"><input type="checkbox" id="' + id + '" name="' + E(o.name || id) + '"' +
+      /* A check box gets a real <label for> pair as well. The label still
+         wraps the box so the text and the box read as one control, but the
+         association is explicit for a screen reader. */
+      control = '<label class="check" for="' + id + '"><input type="checkbox" id="' + id + '" name="' + E(o.name || id) + '"' +
         (o.checked ? ' checked' : '') + (o.disabled ? ' disabled' : '') + '> <span>' + E(o.checkLabel || '') + '</span></label>';
     } else {
       control = '<input type="' + E(o.type || 'text') + '" id="' + id + '" name="' + E(o.name || id) + '"' +
@@ -223,7 +280,7 @@
     }
     return '<div class="field' + (o.error ? ' field-error' : '') + '">' +
       '<label for="' + id + '">' + E(o.label) + req + '</label>' + control +
-      (o.hint ? '<p class="field-hint" id="' + id + '-hint">' + E(o.hint) + '</p>' : '') +
+      (o.hint || o.tip ? UI.hint(o.hint, o.tip, id + '-hint') : '') +
       (o.error ? '<p class="field-error-text" id="' + id + '-err">' + E(o.error) + '</p>' : '') +
       '</div>';
   };
@@ -242,7 +299,8 @@
       const name = k.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
       return ' data-' + name + '="' + E(o.attrs[k]) + '"';
     }).join('');
-    return '<button type="' + (o.type || 'button') + '" class="' + cls + '"' +
+    return '<button type="' + (o.type || 'button') + '"' + (o.id ? ' id="' + E(o.id) + '"' : '') +
+      ' class="' + cls + '"' +
       (o.action ? ' data-action="' + E(o.action) + '"' : '') +
       (o.form ? ' form="' + E(o.form) + '"' : '') + attrs +
       (o.disabled ? ' disabled' : '') + '>' + (o.icon ? UI.icon(o.icon, 18) : '') + '<span>' + E(label) + '</span></button>';

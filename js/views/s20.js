@@ -66,8 +66,6 @@
     { key: 'bayName', en: 'Bay name' },
     { key: 'enabled', en: 'Enabled' },
     { key: 'role', en: 'Role preview' },
-    { key: 'theme', en: 'Theme' },
-    { key: 'light', en: 'Light' },
     { key: 'save', en: 'Save changes' },
     { key: 'reset', en: 'Reset demo values' },
     { key: 'production', en: 'Production requirements' }
@@ -154,7 +152,7 @@
       E(bay.name) + '" maxlength="40" required>' +
       '</div>' +
       '<div class="field">' +
-      '<label class="check"><input type="checkbox" id="bay-enabled-' + E(bay.id) + '" name="bayEnabled-' + E(bay.id) + '"' +
+      '<label class="check" for="bay-enabled-' + E(bay.id) + '"><input type="checkbox" id="bay-enabled-' + E(bay.id) + '" name="bayEnabled-' + E(bay.id) + '"' +
       (bay.enabled ? ' checked' : '') + '> <span>Enabled</span></label>' +
       '</div>' +
       note +
@@ -202,16 +200,57 @@
     });
   }
 
-  function themeCard() {
+  /* The Appearance panel was removed from this screen: the prototype has a
+     fixed light theme, so offering a theme control that does nothing only
+     misleads. The shared colour tokens stay in css/styles.css. */
+
+  /* ------------------------------------------------------------------ */
+  /* workshop rules — the decisions the team has to make visible       */
+  /* ------------------------------------------------------------------ */
+
+  const RULE_ROWS = [
+    ['Stock deduction',
+      'Stock moves only on an explicit material issue. Quoting a part never reduces stock, and an issue deducts once.',
+      'A shortage issues nothing and the job waits for parts.'],
+    ['Bay release',
+      'Completing the repair releases the bay straight away — before the payment and before the collection.',
+      'Payment and collection are tracked separately from the bay.'],
+    ['Approval threshold',
+      'A customer decision is needed when the approval basis is above 50,000 MMK. Exactly 50,000 MMK does not need one.',
+      'Every extra-work version needs its own decision, however small.'],
+    ['Out of stock',
+      'Stock never goes negative. A write-off or a supplier return can only take what is on hand.',
+      'Receiving stock never silently satisfies a waiting job.'],
+    ['Job closure',
+      'A job closes only when the work is completed, the balance is settled and the vehicle is collected.',
+      'Paid, collected and closed stay three separate states.'],
+    ['Redo work',
+      'A comeback is a new linked job. It settles separately and never earns commission.',
+      'The original job keeps its own price and its own record.'],
+    ['Manual discount',
+      'A Manager may discount service labour up to 10%. Above 10% needs the Owner.',
+      'A manual discount never stacks with an automatic promotion.'],
+    ['Price snapshot',
+      'An existing job keeps the prices it was quoted and charged at.',
+      'A price change is a reasoned correction, never an edit of a paid receipt.']
+  ];
+
+  function rulesCard() {
     return UI.card({
-      title: 'Appearance',
-      subtitle: 'Light theme only.',
-      body: UI.dl([
-        ['Theme', 'Light — the warm ivory theme is fixed'],
-        ['Dark theme', 'Out of scope for this prototype'],
-        ['Where the theme comes from', 'css/styles.css — one set of colour tokens for the whole prototype']
-      ]) +
-        '<p class="note">A dark theme control is deliberately not offered here. Nothing on this screen can switch the interface to a dark theme.</p>'
+      title: 'Workshop rules',
+      subtitle: 'The decisions the workshop works by, in one place.',
+      body: UI.table({
+        label: 'Workshop rules',
+        head: ['Rule', 'What happens', 'Safeguard'],
+        rows: RULE_ROWS.map(function (r) {
+          return [
+            { html: E(r[0]), head: true },
+            E(r[1]),
+            E(r[2])
+          ];
+        })
+      }) +
+        '<p class="note">These rules are enforced in the code, not only described here. A rule marked as pending in the review notes is still waiting for the team to confirm it.</p>'
     });
   }
 
@@ -255,7 +294,7 @@
         languageCard(lang) +
         baysCard() +
         roleCard() +
-        themeCard() +
+        rulesCard() +
         productionCard();
     },
     mount: function () { /* no DOM wiring needed */ },

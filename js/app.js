@@ -101,9 +101,43 @@
     S17: 'Daily closing', S18: 'Import preview', S19: 'Reports', S20: 'Demo settings'
   };
 
+  /* Two navigation entries can point at the same screen with different
+     parameters — "My jobs", "Current job" and "Progress" are all S06.
+     The entry whose parameters match the screen that is open is the active
+     one; when several match, the most specific one wins. */
+  function sameParams(want, current) {
+    want = want || {};
+    current = current || {};
+    const keys = Object.keys(want);
+    for (let i = 0; i < keys.length; i++) {
+      if (String(current[keys[i]]) !== String(want[keys[i]])) return false;
+    }
+    return true;
+  }
+
+  function bestNavItem(nav, screen, current) {
+    let best = null;
+    let bestScore = -1;
+    nav.forEach(function (item) {
+      if (item.id !== screen || item.more) return;
+      const want = item.params || {};
+      const keys = Object.keys(want);
+      let score = 0;
+      let ok = true;
+      keys.forEach(function (k) {
+        if (String((current || {})[k]) === String(want[k])) score += 1;
+        else ok = false;
+      });
+      if (!ok) return;
+      if (score > bestScore) { best = item; bestScore = score; }
+    });
+    return best;
+  }
+
   const App = {
     views: global.DolphinViews || {},
     lastFocus: null,
+    moreOpen: false,
 
     /* ---------------- bootstrap ---------------- */
     init: function () {
@@ -186,35 +220,69 @@
       Util.el('#lang-mm').classList.toggle('lang-active', Store.state.language === 'MM');
 
       /* sidebar */
+      const moreItems = MORE_ITEMS[role] || [];
+      /* The "More" group holds the screens that do not fit in the main list.
+         It stays open while one of its screens is showing, so the visitor can
+         always see where they are. */
+      const moreActive = moreItems.some(function (it) { return it.id === screen; });
+      const moreOpen = moreActive || this.moreOpen;
+      const activeItem = bestNavItem(nav, screen, Store.params);
+
       let html = '<div class="brand"><span class="brand-mark">D</span>' +
         '<span class="brand-text"><strong>Dolphin</strong><span>AutoTrack</span></span></div>' +
         '<nav class="nav" aria-label="Main navigation">' +
         nav.map(function (item) {
-          const active = item.more ? false : (screen === item.id && (item.id !== 'S06' || true));
+          if (item.more) {
+            return '<button type="button" class="nav-item nav-more' + (moreActive ? ' nav-active' : '') + '" ' +
+              'data-more-toggle aria-expanded="' + (moreOpen ? 'true' : 'false') + '" aria-controls="more-menu">' +
+              UI.icon(item.icon, 20) + '<span>' + E(item.label) + '</span></button>';
+          }
+          const active = item === activeItem;
           const params = item.params ? JSON.stringify(item.params) : '';
           return '<a href="#" class="nav-item' + (active ? ' nav-active' : '') + '" data-nav="' + E(item.id) + '"' +
             (params ? ' data-params=\'' + E(params) + '\'' : '') +
             ' aria-current="' + (active ? 'page' : 'false') + '">' +
             UI.icon(item.icon, 20) + '<span>' + E(item.label) + '</span></a>';
-        }).join('') + '</nav>' +
-        '<div class="sidebar-foot">Prototype • Dummy data</div>';
-      if (Store.isManagerial() && MORE_ITEMS[role]) {
-        html += '<div class="more-menu" id="more-menu" hidden>' + MORE_ITEMS[role].map(function (item) {
-          const params = item.params ? JSON.stringify(item.params) : '';
-          return '<a href="#" class="nav-item nav-sub" data-nav="' + E(item.id) + '"' +
-            (params ? ' data-params=\'' + E(params) + '\'' : '') + '>' + UI.icon(item.icon, 18) +
-            '<span>' + E(item.label) + '</span></a>';
-        }).join('') + '</div>';
+        }).join('') + '</nav>';
+      if (moreItems.length) {
+        html += '<div class="more-menu" id="more-menu"' + (moreOpen ? '' : ' hidden') + '>' +
+          moreItems.map(function (item) {
+            const params = item.params ? JSON.stringify(item.params) : '';
+            const active = item.id === screen && sameParams(item.params, Store.params);
+            return '<a href="#" class="nav-item nav-sub' + (active ? ' nav-active' : '') + '" data-nav="' + E(item.id) + '"' +
+              (params ? ' data-params=\'' + E(params) + '\'' : '') +
+              ' aria-current="' + (active ? 'page' : 'false') + '">' + UI.icon(item.icon, 18) +
+              '<span>' + E(item.label) + '</span></a>';
+          }).join('') + '</div>';
       }
+      html += '<div class="sidebar-foot">Prototype • Dummy data</div>';
       Util.el('#sidebar').innerHTML = html;
 
-      /* breadcrumb */
-      const crumbs = ['Workshop'];
-      if (Store.isMechanic()) crumbs.push('My jobs'); else crumbs.push(BREADCRUMB[screen] || screen);
+      /* breadcrumb — every crumb except the root leads back to its screen */
+      const crumbs = [{ label: 'Workshop' }];
+      /* A detail screen keeps the way back to its list in the breadcrumb, so
+         it does not also need a large Back button. */
+      const PARENT_CRUMB = {
+        S03: { label: 'Customers', nav: 'S02' },
+        S04: { label: 'Customers', nav: 'S02' },
+        S11: { label: 'Inventory', nav: 'S10' },
+        S16: { label: 'Inventory', nav: 'S10' }
+      };
+      if (Store.isMechanic()) crumbs.push({ label: 'My jobs', nav: 'S06' });
+      else {
+        const parent = PARENT_CRUMB[screen];
+        if (parent) crumbs.push(parent);
+        crumbs.push({ label: BREADCRUMB[screen] || screen, nav: screen });
+      }
       const jobId = Store.params.jobId || Store.state.selectedJobId;
-      if (jobId && ['S06', 'S07', 'S08', 'S09', 'S12'].indexOf(screen) >= 0) crumbs.push(jobId);
+      if (jobId && ['S06', 'S07', 'S08', 'S09', 'S12'].indexOf(screen) >= 0) {
+        crumbs.push({ label: jobId, nav: 'S06', params: { jobId: jobId } });
+      }
       Util.el('#breadcrumb').innerHTML = crumbs.map(function (c, i) {
-        return (i ? '<span class="crumb-sep">›</span>' : '') + '<span>' + E(c) + '</span>';
+        const sep = i ? '<span class="crumb-sep">›</span>' : '';
+        if (!c.nav) return sep + '<span>' + E(c.label) + '</span>';
+        return sep + '<a href="#" class="crumb-link" data-nav="' + E(c.nav) + '"' +
+          (c.params ? ' data-params=\'' + E(JSON.stringify(c.params)) + '\'' : '') + '>' + E(c.label) + '</a>';
       }).join('');
 
       /* content */
@@ -257,6 +325,8 @@
           let params = {};
           const raw = nav.getAttribute('data-params');
           if (raw) { try { params = JSON.parse(raw); } catch (e) { params = {}; } }
+          self.moreOpen = false;
+          self.closeSidebar();
           self.go(screen, params);
           return;
         }
@@ -265,7 +335,9 @@
           ev.preventDefault();
           const params = {};
           Object.keys(Store.params || {}).forEach(function (k) { params[k] = Store.params[k]; });
-          params.tab = tabBtn.getAttribute('data-tab');
+          /* A screen says which parameter its tabs drive — "tab" for the
+             filters of a list, "section" for the tabs of the job card. */
+          params[tabBtn.getAttribute('data-tab-param') || 'tab'] = tabBtn.getAttribute('data-tab');
           self.go(Store.screen, params);
           return;
         }
@@ -273,6 +345,20 @@
         if (scenario) {
           ev.preventDefault();
           self.loadScenario(scenario.getAttribute('data-scenario'));
+          return;
+        }
+        /* A table row can carry extra columns that open under the row. The
+           button only shows and hides the row that belongs to it. */
+        const rowToggle = ev.target.closest('[data-row-toggle]');
+        if (rowToggle) {
+          ev.preventDefault();
+          const row = document.getElementById(rowToggle.getAttribute('data-row-toggle'));
+          if (!row) return;
+          const open = row.hasAttribute('hidden');
+          if (open) row.removeAttribute('hidden');
+          else row.setAttribute('hidden', 'hidden');
+          rowToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+          rowToggle.textContent = open ? 'Hide details' : 'Details';
           return;
         }
         const act = ev.target.closest('[data-action]');
@@ -330,7 +416,12 @@
           const modal = Util.el('#modal-root .modal');
           if (modal) { ev.preventDefault(); self.closeModal(); }
           const more = Util.el('#more-menu');
-          if (more && !more.hidden) { more.hidden = true; }
+          if (more && !more.hidden) {
+            more.hidden = true;
+            self.moreOpen = false;
+            const btn = Util.el('[data-more-toggle]');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+          }
         }
       });
 
@@ -353,7 +444,6 @@
           menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
       }
-
       /* demo controls */
       Util.el('#demo-controls-btn').addEventListener('click', function (ev) {
         ev.stopPropagation();
@@ -368,7 +458,9 @@
         if (moreBtn) {
           ev.preventDefault();
           const menu = Util.el('#more-menu');
+          App.moreOpen = menu ? menu.hidden : false;
           if (menu) menu.hidden = !menu.hidden;
+          moreBtn.setAttribute('aria-expanded', menu && !menu.hidden ? 'true' : 'false');
           return;
         }
       });
@@ -499,6 +591,15 @@
     },
 
     onStateReplaced: function () { this.render(); },
+
+    /* Close the mobile drawer after a navigation so the new screen is not
+       hidden behind it. */
+    closeSidebar: function () {
+      const side = Util.el('#sidebar');
+      if (side) side.classList.remove('open');
+      const btn = Util.el('#menu-btn');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    },
 
     /* ---------------- toasts & dialogs ---------------- */
     toast: function (message, tone) {

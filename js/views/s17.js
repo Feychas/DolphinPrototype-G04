@@ -413,9 +413,14 @@
       '</div>';
   }
 
-  function previewHtml(job, correction) {
+  function previewHtml(job, correction, opts) {
+    opts = opts || {};
     if (!job) return UI.empty('Select a job that already has a receipt.');
-    if (!correction) return UI.empty('Enter the adjustment to see the preview.');
+    const actions = '<div class="form-actions">' +
+      UI.btn('Back to edit', { variant: 'secondary', action: 'correction.edit' }) +
+      UI.btn('Confirm correction', { variant: 'primary', type: 'submit', disabled: !!opts.invalid }) +
+      '</div>';
+    if (!correction) return UI.empty('Enter the adjustment to see the preview.') + actions;
     const prev = Rules.previewCorrectionBalance(job, correction);
     const changes = changeRows(correction);
     const balanced = prev.balanceMMK === 0;
@@ -480,7 +485,8 @@
         : '<p class="note note-warn">This correction leaves an effective balance of ' + E(Util.mmkSigned(prev.balanceMMK)) +
           ' MMK. Once it is applied the job moves to <strong>Review required</strong> and cannot be closed ' +
           'until the balance is settled again.</p>') +
-      closure;
+      closure +
+      actions;
   }
 
   function correctionsList(job) {
@@ -525,7 +531,27 @@
     const payments = job ? (Store.state.payments || []).filter(function (p) { return p.jobId === job.id; }) : [];
     const originalMethod = payments.length ? payments[0].method : 'Cash';
     const total = rc ? rc.totalMMK : 0;
-    const fixture = global.DOLPHIN_FIXTURES.sampleInputs || {};
+
+    /* What the user is typing is kept in the store draft, so a redraw —
+       changing the job, for example — never wipes what was entered. */
+    const draft = (Store.draft && Store.draft.correction) || {};
+    const val = function (name, fallback) {
+      return draft[name] === undefined ? fallback : draft[name];
+    };
+    const dv = {
+      jobId: val('jobId', job ? job.id : ''),
+      type: val('type', 'charge'),
+      reason: val('reason', ''),
+      chargeDeltaMMK: val('chargeDeltaMMK', -5000),
+      refundAmountMMK: val('refundAmountMMK', 5000),
+      refundMethod: val('refundMethod', 'Cash'),
+      reverseMethod: val('reverseMethod', originalMethod),
+      reverseAmountMMK: val('reverseAmountMMK', total),
+      newMethod: val('newMethod', originalMethod === 'KBZPay' ? 'Cash' : 'KBZPay'),
+      newAmountMMK: val('newAmountMMK', total),
+      walletReference: val('walletReference', ''),
+      walletVerified: val('walletVerified', false)
+    };
 
     const jobOptions = correctionCandidates().map(function (j) {
       const r = Store.jobReceipt(j.id);
@@ -550,9 +576,9 @@
         title: '1 — Choose the receipt to correct',
         subtitle: 'Only jobs that already have a receipt can be corrected.',
         body: '<div class="form-grid">' +
-          liveField('data-change="correction.job"', UI.field({
+          liveField('data-change="correction.job" data-live="correction.draft"', UI.field({
             id: 'correction-job', name: 'jobId', label: 'Job with a receipt', type: 'select',
-            value: job ? job.id : '', options: jobOptions, required: true
+            value: dv.jobId, options: jobOptions, required: true
           })) +
           '</div>' +
           '<p class="note">Paid price lines are locked. The original receipt stays retained and the correction is ' +
@@ -566,9 +592,9 @@
       UI.card({
         title: '3 — Describe the correction',
         subtitle: 'A reason is always required. A method change also needs a sample wallet reference and the verified tick.',
-        body: '<div class="form-grid">' +
+        body: '<div id="correction-fields"><div class="form-grid">' +
           liveField('data-live="correction.preview" data-change="correction.preview"', UI.field({
-            id: 'correction-type', name: 'type', label: 'Kind of correction', type: 'select', value: 'charge',
+            id: 'correction-type', name: 'type', label: 'Kind of correction', type: 'select', value: dv.type,
             options: [
               { value: 'charge', label: 'Charge adjustment and refund (paired)' },
               { value: 'method', label: 'Payment method change (reverse and re-enter)' }
@@ -576,7 +602,8 @@
           })) +
           liveField('data-live="correction.preview" data-change="correction.preview"', UI.field({
             id: 'correction-reason', name: 'reason', label: 'Reason (required)', type: 'textarea', rows: 2,
-            required: true, hint: 'The reason is stored on the correction and shown in the activity log.'
+            value: dv.reason, required: true,
+            hint: 'The reason is stored on the correction and shown in the activity log.'
           })) +
           '</div>' +
           '<div class="action-bar">' +
@@ -590,63 +617,60 @@
           '<div class="form-grid form-grid-3">' +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-charge-delta', name: 'chargeDeltaMMK', label: 'Charge adjustment (MMK)', type: 'number',
-            step: 1, inputmode: 'numeric', value: -5000,
+            step: 1, inputmode: 'numeric', value: dv.chargeDeltaMMK,
             hint: 'Signed. Sample A uses −5,000 on a 60,000 MMK receipt.'
           })) +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-refund', name: 'refundAmountMMK', label: 'Refund to the customer (MMK)', type: 'number',
-            min: 0, step: 1, inputmode: 'numeric', value: 5000,
+            min: 0, step: 1, inputmode: 'numeric', value: dv.refundAmountMMK,
             hint: 'Entered positive, stored as a negative change. Sample A refunds 5,000.'
           })) +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-refund-method', name: 'refundMethod', label: 'Refund paid by', type: 'select',
-            value: 'Cash', options: METHODS
+            value: dv.refundMethod, options: METHODS
           })) +
           '</div>' +
           '<div class="form-grid form-grid-3">' +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-reverse-method', name: 'reverseMethod', label: 'Reverse the entry paid by', type: 'select',
-            value: originalMethod, options: METHODS
+            value: dv.reverseMethod, options: METHODS
           }) +
           UI.field({
             id: 'correction-reverse', name: 'reverseAmountMMK', label: 'Reverse amount (MMK)', type: 'number',
-            min: 0, step: 1, inputmode: 'numeric', value: total,
+            min: 0, step: 1, inputmode: 'numeric', value: dv.reverseAmountMMK,
             hint: 'Sample B reverses the original 60,000 MMK Cash entry.'
           })) +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-new-method', name: 'newMethod', label: 'Record the new entry as', type: 'select',
-            value: originalMethod === 'KBZPay' ? 'Cash' : 'KBZPay', options: METHODS
+            value: dv.newMethod, options: METHODS
           })) +
           '</div>' +
           '<div class="form-grid">' +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-new-amount', name: 'newAmountMMK', label: 'New entry amount (MMK)', type: 'number',
-            min: 0, step: 1, inputmode: 'numeric', value: total,
+            min: 0, step: 1, inputmode: 'numeric', value: dv.newAmountMMK,
             hint: 'Sample B records 60,000 MMK as KBZPay — revenue is unchanged.'
           })) +
           liveField('data-live="correction.preview"', UI.field({
             id: 'correction-reference', name: 'walletReference', label: 'Sample wallet reference (required for a method change)',
-            type: 'text', value: '',
+            type: 'text', value: dv.walletReference,
             hint: 'A simulated transfer reference only. No wallet is contacted and no money moves.'
           })) +
           '</div>' +
           liveField('data-live="correction.preview" data-change="correction.preview"', UI.field({
             id: 'correction-verified', name: 'walletVerified', label: 'Verified (demo)', type: 'checkbox',
             checkLabel: 'Verified (demo) — the sample wallet entry was checked',
+            checked: dv.walletVerified,
             hint: 'Required before a method change can be confirmed.'
           })) +
-          '<div class="form-actions">' +
-          UI.btn('Confirm correction', { variant: 'primary', type: 'submit' }) +
-          '<span class="note">All money is simulated. The original receipt is kept.</span>' +
+          '<p class="note">The preview below updates as you type. Confirm the correction from the preview.</p>' +
           '</div>'
       }) +
       UI.card({
         title: '4 — Preview before you confirm',
         subtitle: 'Original entries, signed changes and the effective balance.',
-        body: '<div id="correction-preview">' + previewHtml(job, buildCorrection({
-          type: 'charge', chargeDeltaMMK: -5000, refundAmountMMK: 5000, refundMethod: 'Cash',
-          reason: (fixture.refund && fixture.refund.reason) || '', walletReference: '', walletVerified: false
-        }, job).correction) + '</div>'
+        actions: UI.btn('Edit correction', { variant: 'secondary', action: 'correction.edit' }),
+        body: '<div id="correction-preview">' + previewHtml(job, buildCorrection(dv, job).correction) + '</div>'
       }) +
       '</form>' +
       UI.card({

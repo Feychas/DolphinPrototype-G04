@@ -38,6 +38,8 @@
     if (d && d.jobId === job.id) return d;
     if ((job.quotes || []).length) return null;
     if (Rules.isPricedRedo(job)) return null;   /* the Manager already set the price */
+    if (job.lifecycleStatus !== 'Open') return null;   /* a closed job keeps its record */
+    if (job.paymentStatus === 'Paid' || job.paymentStatus === 'No charge') return null;  /* the price is settled */
     const draft = {
       jobId: job.id, version: 1, isExtraWork: false,
       vehicleId: job.vehicleId, size: job.size,
@@ -62,8 +64,7 @@
 
       let out = UI.pageHeader({
         title: 'Inspection and quotation',
-        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : ''),
-        actions: UI.btn('Back to job', { action: 'nav', variant: 'secondary', attrs: { nav: 'S06', params: JSON.stringify({ jobId: job.id }) } })
+        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : '')
       });
 
       if (job.lifecycleStatus === 'Cancelled') {
@@ -95,18 +96,24 @@
           subtitle: 'Submitted versions are frozen. An edit creates a new version that has to be approved again.',
           body: UI.table({
             label: 'Quote versions',
-            head: ['Version', 'Type', 'Status', 'Total', 'Approval basis', 'Decision', 'Submitted'],
+            head: ['Version', 'Type', 'Status', 'Total'],
+            empty: 'No quote version was recorded for this job.',
             rows: (job.quotes || []).map(function (q) {
               const t = Rules.quoteTotals(q);
-              return [
-                'v' + q.version,
-                q.isExtraWork ? 'Extra work' : 'Initial',
-                { html: UI.statusBadge(q.status) },
-                { html: Util.mmk(t.totalMMK), className: 'num' },
-                { html: Util.mmk(t.repairApprovalBasisMMK), className: 'num' },
-                q.approval ? E(q.approval.decision) + '<br><span class="muted small">' + E(q.approval.channel || '') + '</span>' : 'Not recorded',
-                E(Util.fmtDateTime(q.submittedAt))
-              ];
+              /* The decision and the approval basis open under the version. */
+              return {
+                cells: [
+                  'v' + q.version,
+                  q.isExtraWork ? 'Extra work' : 'Initial',
+                  { html: UI.statusBadge(q.status) },
+                  { html: Util.mmk(t.totalMMK), className: 'num' }
+                ],
+                detail: UI.dl([
+                  ['Approval basis', Util.mmk(t.repairApprovalBasisMMK) + ' MMK'],
+                  ['Decision', q.approval ? q.approval.decision + (q.approval.channel ? ' · ' + q.approval.channel : '') : 'Not recorded'],
+                  ['Submitted', Util.fmtDateTime(q.submittedAt)]
+                ])
+              };
             })
           })
         });
@@ -158,7 +165,8 @@
             return [
               E(Store.state.language === 'MM' && s.nameMM ? s.nameMM : s.nameEN),
               { html: Util.mmk(regular), className: 'num' },
-              promo ? E(promo.id + ' → ' + Util.mmk(Rules.promotionFinal(promo, regular))) : '<span class="muted">None</span>',
+              promo ? { html: E(promo.id + ' → ' + Util.mmk(Rules.promotionFinal(promo, regular))) }
+                : { html: '<span class="muted">None</span>' },
               { html: UI.btn('Add', { action: 'quote.addService', variant: 'secondary', attrs: { serviceId: s.id } }) }
             ];
           })
@@ -342,6 +350,10 @@
       '<div class="detail-row"><span>Rounding</span><span>' + Util.mmk(t.roundingMMK) + ' MMK</span></div>' +
       '<div class="detail-row"><span>Total</span><span><strong>' + Util.mmk(t.totalMMK) + ' MMK</strong></span></div>' +
       '</div>' +
-      (q.inspectionNotes ? '<p class="note">Inspection notes: ' + E(q.inspectionNotes) + '</p>' : '');
+      (q.inspectionNotes
+        ? '<h3 class="card-sub">Inspection notes</h3>' +
+          UI.disclosure('The complete note is kept with the version it was written for.',
+            q.inspectionNotes, 'Show the full inspection notes')
+        : '');
   }
 })(window);

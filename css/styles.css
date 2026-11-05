@@ -35,6 +35,11 @@
 
 * { box-sizing: border-box; }
 
+/* The hidden attribute always wins. A layout rule such as `.field {display:flex}`
+   has the same specificity as the user-agent rule for [hidden], so without this
+   a hidden block would still be drawn. */
+[hidden] { display: none !important; }
+
 html, body { height: 100%; }
 
 body {
@@ -96,6 +101,13 @@ a { color: var(--brand); }
 }
 .nav-item:hover { background: var(--brand-soft-2); color: var(--ink); }
 .nav-item .ic { flex: 0 0 auto; opacity: .85; }
+/* The "More" group is a button, not a link: it opens a submenu in place
+   instead of navigating to a screen of its own. */
+button.nav-item {
+  width: 100%; background: none; font-family: inherit; text-align: left;
+  border: 0; border-left: 3px solid transparent; cursor: pointer;
+}
+button.nav-item:hover { background: var(--brand-soft-2); color: var(--ink); }
 .nav-active {
   background: var(--brand-soft);
   color: var(--brand);
@@ -120,8 +132,10 @@ a { color: var(--brand); }
 .topbar .spacer { flex: 1 1 auto; }
 .menu-btn { display: none; }
 
-.breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: 15px; }
+.breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: 15px; min-width: 0; }
 .crumb-sep { color: var(--muted); }
+.crumb-link { color: var(--ink-soft); text-decoration: none; }
+.crumb-link:hover { color: var(--brand); text-decoration: underline; }
 
 .demo-pill {
   background: var(--brand-soft); color: var(--brand-dark);
@@ -197,14 +211,20 @@ textarea:focus-visible,
 .card-head > div:first-child { flex: 1 1 auto; }
 .card-title { font-size: 20px; font-weight: 700; letter-spacing: -.2px; }
 .card-sub { color: var(--ink-soft); font-size: 14.5px; margin: 4px 0 0; }
+/* A heading that stands between two strips of content without a card around
+   it — used where a group holds a single report. */
+.section-head { font-size: 19px; font-weight: 700; letter-spacing: -.2px; margin: 4px 0 14px; }
 .card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.card-body { padding: 0 20px 20px; }
+.card-body { padding: 0 20px 20px; min-width: 0; }
 .card-body > *:last-child { margin-bottom: 0; }
 
 .grid-2 { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .grid-2-even { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+/* a grid child must never be wider than its track — long words and tables
+   would otherwise push the whole page sideways */
+.grid-2 > *, .grid-2-even > *, .grid-3 > *, .grid-4 > * { min-width: 0; }
 .stack { display: flex; flex-direction: column; gap: 14px; }
 .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .row-between { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
@@ -281,6 +301,16 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
 .row-link { cursor: pointer; }
 .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .row-actions .btn { min-height: 36px; padding: 6px 12px; font-size: 13.5px; }
+/* A row that opens its extra columns on demand: the key columns stay in the
+   table, the rest opens under the row that belongs to it. */
+.col-detail { width: 1%; white-space: nowrap; }
+.row-toggle {
+  background: none; border: 0; padding: 2px 4px; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 600; color: var(--blue);
+}
+.row-toggle:hover { text-decoration: underline; }
+.row-detail > td { background: var(--bg-alt); color: var(--ink-soft); }
+.row-detail > td > dl { margin: 0; }
 .input-mini {
   width: 88px; max-width: 100%; min-height: 38px; padding: 6px 8px;
   text-align: right; font-variant-numeric: tabular-nums;
@@ -299,10 +329,15 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
 .badge-grey { background: var(--grey-soft); color: var(--grey); }
 .badge-red { background: var(--red-soft); color: var(--red); }
 
-.chip-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-bottom: 20px; }
-.chip { border-radius: var(--radius); padding: 14px 16px; background: var(--card); border: 1px solid var(--line); }
-.chip-label { display: block; font-size: 13.5px; color: var(--ink-soft); }
-.chip-value { display: block; font-size: 19px; font-weight: 700; margin-top: 2px; }
+/* Compact status chips: four small pills in one row, not four large cards. */
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.chip {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  border-radius: 999px; padding: 6px 14px;
+  background: var(--card); border: 1px solid var(--line);
+}
+.chip-label { display: inline; font-size: 13px; color: var(--ink-soft); }
+.chip-value { display: inline; font-size: 14.5px; font-weight: 700; margin-top: 0; }
 .chip-blue { background: var(--blue-soft); border-color: #cfe4f7; }
 .chip-blue .chip-value { color: var(--blue); }
 .chip-green { background: var(--green-soft); border-color: #cfe9d8; }
@@ -313,6 +348,45 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
 .chip-grey .chip-value { color: var(--grey); }
 .chip-red { background: var(--red-soft); border-color: #f6d3d1; }
 .chip-red .chip-value { color: var(--red); }
+
+/* ---------------- job header (§3) ---------------- */
+.job-head {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 18px 20px; margin-bottom: 18px;
+}
+.job-head-top { display: flex; align-items: flex-start; gap: 18px; flex-wrap: wrap; }
+.job-head-id { flex: 1 1 280px; min-width: 0; }
+.job-head-id h1, .job-head-id h2 { font-size: 24px; letter-spacing: -.4px; margin: 0; }
+.job-head-meta { color: var(--ink-soft); font-size: 14.5px; margin-top: 4px; }
+.job-head-total { text-align: right; min-width: 150px; }
+.job-head-total .t-label { display: block; font-size: 13px; color: var(--ink-soft); }
+.job-head-total .t-value { display: block; font-size: 26px; font-weight: 800; letter-spacing: -.6px; }
+.next-action { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line-soft); }
+.next-action-label {
+  display: block; font-size: 12.5px; text-transform: uppercase;
+  letter-spacing: .6px; color: var(--muted); margin-bottom: 8px;
+}
+.next-action .btn { font-size: 16px; padding: 12px 22px; min-height: 48px; }
+.next-action-why { color: var(--ink-soft); font-size: 14px; margin: 8px 0 0; }
+.secondary-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* a short summary with the full text one click away */
+.summary-line { font-size: 15px; margin: 0; }
+.disclosure { margin-top: 8px; }
+.disclosure > summary {
+  cursor: pointer; font-size: 14px; color: var(--brand);
+  list-style: none; display: inline-flex; align-items: center; gap: 6px;
+  min-height: 32px; padding: 2px 0;
+}
+.disclosure > summary::-webkit-details-marker { display: none; }
+.disclosure > summary::before { content: '▸'; font-size: 12px; }
+.disclosure[open] > summary::before { content: '▾'; }
+.disclosure > summary:hover { text-decoration: underline; }
+.disclosure-body {
+  margin-top: 8px; padding: 12px 14px; background: var(--bg-alt);
+  border-radius: var(--radius-sm); font-size: 14.5px; white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
 
 /* ---------------- forms ---------------- */
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
@@ -325,20 +399,48 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
   background: #fff; width: 100%;
 }
 .field textarea { min-height: 90px; resize: vertical; }
+/* A check box or a radio is not a text field: it must keep its own size and
+   must never be stretched to the full width of the column. */
+.field input[type="checkbox"], .field input[type="radio"],
+.check input[type="checkbox"], .radio-row input[type="checkbox"] {
+  width: 20px; height: 20px; min-height: 0; max-width: 20px;
+  padding: 0; margin: 2px 0 0; flex: 0 0 auto;
+  accent-color: var(--brand);
+}
 .field input:focus, .field select:focus, .field textarea:focus {
   outline: 3px solid rgba(28, 111, 184, .35); outline-offset: 1px; border-color: var(--blue);
 }
 .field-hint { font-size: 13px; color: var(--muted); margin: 0; }
+/* A short helper line with the long explanation in a tooltip. */
+.hint-tip {
+  display: inline-flex; align-items: center; margin-left: 6px;
+  color: var(--muted); cursor: help; vertical-align: -2px;
+}
+.hint-tip:hover { color: var(--blue); }
+.hint-tip .ic { width: 14px; height: 14px; }
 .field-error-text { font-size: 13.5px; color: var(--red); margin: 0; font-weight: 600; }
 .field-error input, .field-error select, .field-error textarea { border-color: var(--red); }
-.check { display: inline-flex; align-items: center; gap: 9px; font-size: 15px; cursor: pointer; }
-.check input { width: 20px; height: 20px; min-height: 0; }
+.check {
+  display: inline-flex; align-items: flex-start; gap: 9px;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  cursor: pointer; line-height: 1.45; max-width: 100%;
+}
+.check > span { min-width: 0; overflow-wrap: anywhere; }
 .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; }
 .form-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 18px; }
 .span-2 { grid-column: span 2; }
-.radio-row { display: flex; gap: 18px; flex-wrap: wrap; align-items: center; }
-.radio-row label { display: inline-flex; gap: 8px; align-items: center; font-weight: 500; color: var(--ink); }
-.radio-row input { width: 20px; height: 20px; min-height: 0; }
+/* A group of check boxes is a grid, not a row: a long service name wraps
+   inside its own cell and never runs through the next control. */
+.radio-row {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px 20px; align-items: start;
+}
+.radio-row label {
+  display: flex; gap: 9px; align-items: flex-start;
+  font-weight: 500; color: var(--ink); line-height: 1.45;
+  max-width: 100%; min-width: 0;
+}
+.radio-row label > span { min-width: 0; overflow-wrap: anywhere; }
 .note { font-size: 13.5px; color: var(--muted); }
 .note-warn { color: var(--amber); font-weight: 600; }
 .note-danger { color: var(--red); font-weight: 600; }
@@ -349,6 +451,8 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
   border-radius: var(--radius-sm); padding: 14px 16px; margin: 0 0 16px;
   font-size: 15px;
 }
+/* an empty banner is an empty box — it is not drawn at all */
+.banner:empty { display: none; }
 .banner p { margin: 4px 0 0; }
 .banner-info { background: var(--blue-soft); color: #144f85; }
 .banner-warn { background: var(--amber-soft); color: #8a4a06; }
@@ -547,8 +651,12 @@ button.link { min-height: 32px; padding: 4px 6px; background: none; border: 0; f
   .kpi-value { font-size: 26px; }
   .page-head h1 { font-size: 26px; }
   .demo-pill { display: none; }
-  .breadcrumb { display: none; }
-  .topbar { gap: 6px; padding: 0 10px; }
+  /* The breadcrumb moves to its own line so that it never squeezes the
+     controls of the top bar on a narrow screen. */
+  .topbar { height: auto; min-height: var(--topbar-h); flex-wrap: wrap; gap: 6px; padding: 8px 10px; }
+  .breadcrumb { order: 10; flex: 1 0 100%; font-size: 13.5px; }
+  .breadcrumb > :nth-child(1), .breadcrumb > :nth-child(2) { display: none; }
+  .breadcrumb > :last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .topbar select { max-width: 104px; font-size: 14px; padding: 8px 6px; }
   .lang-toggle { gap: 4px; }
   .lang-toggle button { padding: 6px 2px; }

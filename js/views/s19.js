@@ -9,14 +9,44 @@
 
   const E = Util.esc;
 
-  const TABS = [
-    { id: 'overview', label: 'Overview' },
-    { id: 'services', label: 'Services' },
+  /* §1: the reports are grouped into Sales, Inventory and Staff. Each group
+     opens with a combined summary of the figures that its drill-downs also
+     show, and every drill-down keeps its own calculations and filters. */
+  const GROUPS = [
+    { id: 'sales', label: 'Sales' },
     { id: 'inventory', label: 'Inventory' },
-    { id: 'commission', label: 'Commission' },
-    { id: 'promotions', label: 'Promotions' },
-    { id: 'redo', label: 'Redo' }
+    { id: 'staff', label: 'Staff' }
   ];
+
+  const VIEWS = {
+    sales: [
+      { id: 'overview', label: 'Summary' },
+      { id: 'services', label: 'Services' },
+      { id: 'promotions', label: 'Promotions' },
+      { id: 'redo', label: 'Redo jobs' }
+    ],
+    inventory: [
+      { id: 'stock', label: 'Stock and usage' }
+    ],
+    staff: [
+      { id: 'commission', label: 'Commission' }
+    ]
+  };
+
+  /* The old flat tab names still open the same report, so every link that
+     points at a report keeps working after the grouping. */
+  const LEGACY = {
+    overview: ['sales', 'overview'],
+    daily: ['sales', 'overview'],
+    services: ['sales', 'services'],
+    promotions: ['sales', 'promotions'],
+    redo: ['sales', 'redo'],
+    inventory: ['inventory', 'stock'],
+    stock: ['inventory', 'stock'],
+    commission: ['staff', 'commission'],
+    sales: ['sales', 'overview'],
+    staff: ['staff', 'commission']
+  };
   const ROLES = ['Owner', 'Manager', 'Cashier', 'Mechanic'];
   const PERIODS = ['Per job', 'Weekly', 'Monthly'];
   const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -511,7 +541,7 @@
   /* ------------------------------------------------------------------ */
 
   function dateBasis(r) {
-    return '<p class="note">Date basis: the demo workshop date in Asia/Yangon. The demo clock is fixed at ' +
+    return '<p class="note">Date basis: the workshop date in Asia/Yangon. The clock is fixed at ' +
       E(Util.fmtDateTime(Store.now())) + '. All money and every record on this screen are simulated.</p>';
   }
 
@@ -546,14 +576,55 @@
     return days + (days === 1 ? ' day' : ' days') + ' selected — ' + dayLabel(from) + ' to ' + dayLabel(to);
   }
 
-  function emptyRange(r) {
-    if (!r.ok) {
-      return UI.banner('warn', 'The end date is before the start date',
-        'Nothing can be reported for that range. Set the end date to the same day or later than the start date and apply the range again.');
+  /* §1: the error state and the no-data state are two different messages.
+     A broken period is a warning the user can fix; an empty period is a
+     plain answer with nothing in it. */
+  function rangeError(r) {
+    return UI.banner('warn', 'The end date is before the start date',
+      'Nothing can be reported for that range. Set the end date to the same day or later than the start date and apply the range again.');
+  }
+
+  /* One concise no-data message per selected report view. */
+  const NO_DATA = {
+    overview: 'No receipts, payments, corrections, check-ins or stock movements fall inside this period.',
+    services: 'No service line was billed inside this period.',
+    promotions: 'No promotion is configured for this workshop.',
+    redo: 'No Redo job was created inside this period.',
+    stock: 'No stock item and no stock movement fall inside this period.',
+    commission: 'No commission is earned in this period.'
+  };
+
+  function noData(r, view) {
+    return UI.card({
+      title: 'Nothing to report for this period',
+      body: UI.empty((NO_DATA[view] || 'Nothing falls inside this period.') +
+        ' The period is ' + dayLabel(r.from) + ' to ' + dayLabel(r.to) +
+        '. Widen the range to include earlier history — figures are never shown for an empty period.')
+    });
+  }
+
+  /* Does the selected report view have anything to show for this range? */
+  function viewHasData(view, r) {
+    if (view === 'overview') return rangeHasActivity(r);
+    if (view === 'services') {
+      return servicePerformance(r.from, r.to).length > 0 ||
+        popularServices(completedJobsIn(r.from, r.to)).length > 0;
     }
-    return UI.empty('No receipts, payments, corrections, check-ins or stock movements fall between ' +
-      dayLabel(r.from) + ' and ' + dayLabel(r.to) + '. Widen the range if you want to include earlier history — ' +
-      'figures are never shown for an empty range.');
+    if (view === 'promotions') {
+      return (Store.state.promotions || []).length > 0 ||
+        promotionPricePreview(r.from, r.to).length > 0;
+    }
+    if (view === 'redo') return redoJobsIn(r.from, r.to).length > 0;
+    if (view === 'stock') {
+      return stockPosition().items.length > 0 ||
+        movementsIn(r.from, r.to).length > 0 ||
+        usageIn(r.from, r.to).length > 0;
+    }
+    if (view === 'commission') {
+      const rule = Store.state.commissionRule;
+      return !!rule || commissionJobs(rule, r.from, r.to).rows.length > 0;
+    }
+    return true;
   }
 
   function presetCard(ctx) {
@@ -585,56 +656,29 @@
   /* tabs                                                                */
   /* ------------------------------------------------------------------ */
 
-  function overviewTab(r, ctx) {
-    if (!r.ok) return emptyRange(r);
-    if (!rangeHasActivity(r)) {
-      return UI.card({ title: 'Nothing to report for this period', body: emptyRange(r) }) +
-        presetCard(ctx);
-    }
-    const rev = Rules.revenue(r.from, r.to);
-    const col = Rules.collections(r.from, r.to);
-    const material = materialCostIn(r.from, r.to);
-    const gp = grossProfit(rev.totalMMK, material);
-    const rule = Store.state.commissionRule;
-    const preview = rule ? Rules.commissionPreview(rule, r.from, r.to) : { configured: false, totalMMK: null };
-
-    const kpis = '<div class="grid-4">' +
-      UI.kpi({
-        label: 'Receipt revenue', value: Util.mmk(rev.totalMMK) + ' MMK', tone: 'blue', icon: 'receipt',
-        sub: 'Finalised receipts plus charge corrections in the range'
-      }) +
-      UI.kpi({
-        label: 'Collections', value: Util.mmk(col.totalMMK) + ' MMK', tone: 'green', icon: 'wallet',
-        sub: 'Signed payments, refunds and method corrections'
-      }) +
-      UI.kpi({
-        label: 'Estimated gross profit', value: gp.complete ? (Util.mmk(gp.valueMMK) + ' MMK') : 'Incomplete',
-        tone: gp.complete ? 'green' : 'amber', icon: 'chart',
-        sub: gp.complete
-          ? 'Receipt revenue minus snapshotted material cost ' + Util.mmk(material.costMMK) + ' MMK'
-          : 'Missing material cost snapshot — not estimated as zero'
-      }) +
-      UI.kpi({
-        label: 'Commission (separate)', value: preview.configured ? (Util.mmk(preview.totalMMK) + ' MMK') : 'Not configured',
-        tone: preview.configured ? 'grey' : 'amber', icon: 'users',
-        sub: preview.configured ? 'Illustrative rule — shown separately from revenue' : 'No commission rule is set'
-      }) +
-      '</div>';
-
+  function overviewTab(r) {
     const daily = dailyRows(r.from, r.to);
     const dailyTable = UI.table({
       label: 'Daily summary',
-      head: ['Day', 'Receipt revenue', 'Collections', 'Cash', 'KBZPay', 'WavePay', 'Jobs checked in', 'Vehicles', 'Closing difference', 'Charge corrections (signed)'],
+      head: ['Day', 'Receipt revenue', 'Collections', 'Jobs checked in'],
       rows: daily.rows.map(function (d) {
-        return [
-          { html: E(dayLabel(d.day)), head: true },
-          num(d.revenueMMK), num(d.collectionsMMK),
-          num(d.byMethod.Cash || 0), num(d.byMethod.KBZPay || 0), num(d.byMethod.WavePay || 0),
-          { html: E(String(d.jobs)), className: 'num' },
-          { html: E(String(d.vehicles)), className: 'num' },
-          d.closing === null ? { html: '—' } : numSigned(d.closing),
-          numSigned(d.correctionsMMK)
-        ];
+        /* The key columns stay in the table. The payment split and the other
+           figures open under the day they belong to. */
+        return {
+          cells: [
+            { html: E(dayLabel(d.day)), head: true },
+            num(d.revenueMMK), num(d.collectionsMMK),
+            { html: E(String(d.jobs)), className: 'num' }
+          ],
+          detail: UI.dl([
+            ['Payments — Cash', Util.mmk(d.byMethod.Cash || 0) + ' MMK'],
+            ['Payments — KBZPay', Util.mmk(d.byMethod.KBZPay || 0) + ' MMK'],
+            ['Payments — WavePay', Util.mmk(d.byMethod.WavePay || 0) + ' MMK'],
+            ['Vehicles checked in', String(d.vehicles)],
+            ['Closing difference', d.closing === null ? '—' : Util.mmkSigned(d.closing) + ' MMK'],
+            ['Charge corrections', Util.mmkSigned(d.correctionsMMK) + ' MMK']
+          ])
+        };
       }),
       empty: 'No activity on any day of this range.'
     });
@@ -642,19 +686,23 @@
     const months = monthlyRows(r.from, r.to);
     const monthlyTable = UI.table({
       label: 'Monthly summary',
-      head: ['Month', 'Days counted', 'Receipt revenue', 'Collections', 'Material cost', 'Estimated gross profit', 'Commission', 'Discounts', 'Redo jobs', 'Jobs completed'],
+      head: ['Month', 'Receipt revenue', 'Collections', 'Estimated gross profit'],
       rows: months.map(function (m) {
-        return [
-          { html: E(m.label), head: true },
-          { html: E(m.from + ' to ' + m.to) },
-          num(m.revenueMMK), num(m.collectionsMMK),
-          m.materialMissing ? { html: 'Incomplete' } : num(m.materialMMK),
-          m.grossProfit.complete ? num(m.grossProfit.valueMMK) : { html: 'Incomplete' },
-          m.commissionMMK === null ? { html: 'Not configured' } : num(m.commissionMMK),
-          num(m.discountMMK),
-          { html: E(String(m.redoCount)), className: 'num' },
-          { html: E(String(m.completedCount)), className: 'num' }
-        ];
+        return {
+          cells: [
+            { html: E(m.label), head: true },
+            num(m.revenueMMK), num(m.collectionsMMK),
+            m.grossProfit.complete ? num(m.grossProfit.valueMMK) : { html: 'Incomplete' }
+          ],
+          detail: UI.dl([
+            ['Days counted', m.from + ' to ' + m.to],
+            ['Material cost', m.materialMissing ? 'Incomplete' : Util.mmk(m.materialMMK) + ' MMK'],
+            ['Commission', m.commissionMMK === null ? 'Not configured' : Util.mmk(m.commissionMMK) + ' MMK'],
+            ['Discounts', Util.mmk(m.discountMMK) + ' MMK'],
+            ['Redo jobs', String(m.redoCount)],
+            ['Jobs completed', String(m.completedCount)]
+          ])
+        };
       }),
       empty: 'No months in this range.'
     });
@@ -691,32 +739,13 @@
       empty: 'No parts or oil were issued inside this range.'
     });
 
-    const stock = stockPosition();
-    const stockTable = UI.table({
-      label: 'Stock position now',
-      head: ['Item', 'Type', 'On hand', 'Unit', 'Reorder level', 'Latest purchase cost', 'Estimated value'],
-      rows: stock.items.map(function (i) {
-        return [
-          { html: E(i.name) + (i.low ? ' ' + UI.badge('Low stock', 'orange') : ''), head: true },
-          { html: E(i.type) },
-          { html: E(Util.qty(i.onHand)), className: 'num' },
-          { html: E(i.unit) },
-          { html: E(Util.qty(i.reorderLevel)), className: 'num' },
-          num(i.costMMK),
-          num(i.valueMMK)
-        ];
-      }),
-      empty: 'No stock items are configured.'
-    });
-
-    return kpis +
-      UI.card({
-        title: 'Daily summary',
-        subtitle: 'One row per day inside the selected range.',
-        body: dailyTable +
-          '<p class="note">Collections are broken out by method. A closing difference is only shown when a daily closing was recorded for that day. Charge corrections are signed — a negative figure lowers the charged amount.</p>' +
-          (daily.truncated ? '<p class="note note-warn">Only the first ' + MAX_DAILY_ROWS + ' days of ' + daily.totalDays + ' are listed. Narrow the range to see every day.</p>' : '')
-      }) +
+    return UI.card({
+      title: 'Daily summary',
+      subtitle: 'One row per day inside the selected range.',
+      body: dailyTable +
+        '<p class="note">Collections are broken out by method. A closing difference is only shown when a daily closing was recorded for that day. Charge corrections are signed — a negative figure lowers the charged amount.</p>' +
+        (daily.truncated ? '<p class="note note-warn">Only the first ' + MAX_DAILY_ROWS + ' days of ' + daily.totalDays + ' are listed. Narrow the range to see every day.</p>' : '')
+    }) +
       UI.card({
         title: 'Monthly summary',
         subtitle: 'Calendar months inside the selected range only — history outside the range is excluded.',
@@ -726,21 +755,10 @@
       '<div class="grid-2-even">' +
       UI.card({ title: 'Popular completed services', body: popularTable }) +
       UI.card({ title: 'Parts and oil used in the range', body: usageTable }) +
-      '</div>' +
-      UI.card({
-        title: 'Stock position now',
-        subtitle: 'Estimated stock value is on hand multiplied by the latest purchase cost. It is an estimate, not a valuation.',
-        body: '<div class="grid-3">' +
-          UI.kpi({ label: 'Estimated stock value', value: Util.mmk(stock.totalValueMMK) + ' MMK', tone: 'blue', icon: 'box' }) +
-          UI.kpi({ label: 'Low stock items', value: String(stock.lowStock.length), tone: stock.lowStock.length ? 'amber' : 'green', icon: 'package' }) +
-          UI.kpi({ label: 'Items tracked', value: String(stock.items.length), tone: 'grey', icon: 'archive' }) +
-          '</div>' + stockTable
-      }) +
-      presetCard(ctx);
+      '</div>';
   }
 
   function servicesTab(r) {
-    if (!r.ok) return emptyRange(r);
     const perf = servicePerformance(r.from, r.to);
     const popular = popularServices(completedJobsIn(r.from, r.to));
     const rev = Rules.revenue(r.from, r.to);
@@ -785,35 +803,29 @@
   }
 
   function inventoryTab(r) {
-    if (!r.ok) return emptyRange(r);
     const stock = stockPosition();
     const usage = usageIn(r.from, r.to);
     const movements = movementsIn(r.from, r.to);
     return UI.card({
       title: 'Stock position now',
       subtitle: 'On hand multiplied by the latest purchase cost is an estimate of the stock value.',
-      body: '<div class="grid-3">' +
-        UI.kpi({ label: 'Estimated stock value', value: Util.mmk(stock.totalValueMMK) + ' MMK', tone: 'blue', icon: 'box' }) +
-        UI.kpi({ label: 'Low stock items', value: String(stock.lowStock.length), tone: stock.lowStock.length ? 'amber' : 'green', icon: 'package' }) +
-        UI.kpi({ label: 'Movements in range', value: String(movements.length), tone: 'grey', icon: 'archive' }) +
-        '</div>' +
-        UI.table({
-          label: 'Stock position',
-          head: ['Item', 'Type', 'On hand', 'Unit', 'Reorder level', 'Latest purchase cost', 'Estimated value', 'Status'],
-          rows: stock.items.map(function (i) {
-            return [
-              { html: E(i.name), head: true },
-              { html: E(i.type) },
-              { html: E(Util.qty(i.onHand)), className: 'num' },
-              { html: E(i.unit) },
-              { html: E(Util.qty(i.reorderLevel)), className: 'num' },
-              num(i.costMMK),
-              num(i.valueMMK),
-              { html: i.low ? UI.badge('Low stock', 'orange') : UI.badge('In stock', 'green') }
-            ];
-          }),
-          empty: 'No stock items are configured.'
-        })
+      body: UI.table({
+        label: 'Stock position',
+        head: ['Item', 'Type', 'On hand', 'Unit', 'Reorder level', 'Latest purchase cost', 'Estimated value', 'Status'],
+        rows: stock.items.map(function (i) {
+          return [
+            { html: E(i.name), head: true },
+            { html: E(i.type) },
+            { html: E(Util.qty(i.onHand)), className: 'num' },
+            { html: E(i.unit) },
+            { html: E(Util.qty(i.reorderLevel)), className: 'num' },
+            num(i.costMMK),
+            num(i.valueMMK),
+            { html: i.low ? UI.badge('Low stock', 'orange') : UI.badge('In stock', 'green') }
+          ];
+        }),
+        empty: 'No stock items are configured.'
+      })
     }) +
       UI.card({
         title: 'Parts and oil used in the range',
@@ -855,29 +867,13 @@
       });
   }
 
-  function commissionTab(r, ctx) {
+  function commissionTab(r) {
     const rule = Store.state.commissionRule;
     const isOwner = Store.isOwner();
     const data = commissionJobs(rule, r.from, r.to);
-    const rev = Rules.revenue(r.from, r.to);
-    const material = materialCostIn(r.from, r.to);
-    const gp = grossProfit(rev.totalMMK, material);
     const staff = commissionStaff(data.rows);
-    const earnedTotal = Util.sum(staff, function (s) { return s.earnedMMK; });
     const payouts = Store.state.commissionPayouts || [];
     const reviewCount = data.rows.filter(function (row) { return row.needsReview; }).length;
-
-    let contribution = { complete: false, valueMMK: null };
-    if (gp.complete && data.preview.configured) {
-      contribution = { complete: true, valueMMK: rev.totalMMK - material.costMMK - earnedTotal };
-    }
-
-    const kpis = '<div class="grid-4">' +
-      UI.kpi({ label: 'Receipt revenue', value: Util.mmk(rev.totalMMK) + ' MMK', tone: 'blue', icon: 'receipt', sub: 'Excludes commission' }) +
-      UI.kpi({ label: 'Material cost (snapshot)', value: material.missing ? 'Incomplete' : (Util.mmk(material.costMMK) + ' MMK'), tone: material.missing ? 'amber' : 'grey', icon: 'package', sub: 'Snapshotted when the material was issued' }) +
-      UI.kpi({ label: 'Commission earned', value: data.preview.configured ? (Util.mmk(earnedTotal) + ' MMK') : 'Not configured', tone: data.preview.configured ? 'orange' : 'amber', icon: 'users', sub: data.preview.configured ? 'Earned only — not yet paid out' : 'No commission rule is set' }) +
-      UI.kpi({ label: 'Contribution after commission', value: contribution.complete ? (Util.mmk(contribution.valueMMK) + ' MMK') : 'Incomplete', tone: contribution.complete ? 'green' : 'amber', icon: 'chart', sub: 'Revenue − material cost − commission' }) +
-      '</div>';
 
     const ruleBody = rule ? ruleSummary(rule) : UI.empty('Not configured. No commission rule is set for this scenario, so no commission is earned and no payout can be recorded.');
     const ruleForm = isOwner ? commissionRuleForm(rule) :
@@ -951,7 +947,7 @@
     }) : UI.empty('Not configured.');
 
     const payoutTable = UI.table({
-      label: 'Recorded demo payouts',
+      label: 'Recorded payouts',
       head: ['Payout', 'Staff', 'Job', 'Amount', 'Recorded at', 'Rule', 'Period', 'Note'],
       rows: payouts.map(function (p) {
         return [
@@ -965,13 +961,12 @@
           { html: E(p.note) }
         ];
       }),
-      empty: 'No demo payout has been recorded yet.'
+      empty: 'No payout has been recorded yet.'
     });
 
-    return kpis +
-      UI.card({
-        title: 'Commission rule',
-        subtitle: 'An illustrative demonstrator for this prototype — not a real workshop rate.',
+    return UI.card({
+      title: 'Commission rule',
+        subtitle: 'An illustrative demonstrator — not a real workshop rate.',
         body: ruleBody +
           '<p class="note">The rule is stored in the demo state only. Resetting the scenario restores the fixture rule.</p>' +
           ruleForm
@@ -989,7 +984,7 @@
           '<p class="note">A job’s commission is split equally across its eligible staff. Any leftover whole MMK goes to the lowest sorted staff ID, so the shares always add up to the job total.</p>'
       }) +
       UI.card({
-        title: 'Recorded demo payouts',
+        title: 'Recorded payouts',
         subtitle: 'In-memory records only. They are not payments and they do not touch receipts or the bank.',
         body: payoutTable +
           '<p class="note">A demo payout records what was handed over in the demonstration. If the rule changes afterwards the screen shows the difference as an adjustment instead of paying the same amount twice.</p>'
@@ -1027,12 +1022,12 @@
     const r = rule || { type: 'percent', value: 10, basis: 'finalLabour', eligibleRoles: ['Mechanic'], eligibleServiceIds: [], payoutPeriod: 'Monthly' };
     const roleBoxes = ROLES.map(function (role) {
       const on = (r.eligibleRoles || []).indexOf(role) >= 0;
-      return '<label class="check"><input type="checkbox" id="rule-role-' + E(role) + '" name="role-' + E(role) + '"' +
+      return '<label class="check" for="rule-role-' + E(role) + '"><input type="checkbox" id="rule-role-' + E(role) + '" name="role-' + E(role) + '"' +
         (on ? ' checked' : '') + '> <span>' + E(role) + '</span></label>';
     }).join('');
     const serviceBoxes = (Store.state.services || []).map(function (s) {
       const on = (r.eligibleServiceIds || []).indexOf(s.id) >= 0;
-      return '<label class="check"><input type="checkbox" id="rule-svc-' + E(s.id) + '" name="svc-' + E(s.id) + '"' +
+      return '<label class="check" for="rule-svc-' + E(s.id) + '"><input type="checkbox" id="rule-svc-' + E(s.id) + '" name="svc-' + E(s.id) + '"' +
         (on ? ' checked' : '') + '> <span>' + E(s.nameEN) + '</span></label>';
     }).join('');
     return '<form id="commission-rule-form" data-form="reports.commissionRule">' +
@@ -1070,7 +1065,6 @@
   }
 
   function promotionsTab(r) {
-    if (!r.ok) return emptyRange(r);
     const promos = (Store.state.promotions || []).map(function (p) {
       let state = 'Not started';
       if (p.active === false) state = 'Switched off';
@@ -1132,7 +1126,6 @@
   }
 
   function redoTab(r) {
-    if (!r.ok) return emptyRange(r);
     const inRange = redoJobsIn(r.from, r.to);
     const all = (Store.state.jobs || []).filter(function (j) { return !!j.redoOfJobId; });
     const rows = inRange.map(function (j) {
@@ -1171,12 +1164,194 @@
   /* view                                                                */
   /* ------------------------------------------------------------------ */
 
-  function tabBody(tab, r, ctx) {
-    if (tab === 'services') return servicesTab(r);
-    if (tab === 'inventory') return inventoryTab(r);
-    if (tab === 'commission') return commissionTab(r, ctx);
-    if (tab === 'promotions') return promotionsTab(r);
-    if (tab === 'redo') return redoTab(r);
+  /* §1: the group strip picks the report group, the view strip picks the
+     report inside it. Both drive a parameter, so a link that still points at
+     an old flat tab name keeps working. */
+  function resolveGroupView(ctx) {
+    const p = (ctx && ctx.params) || {};
+    if (p.group && VIEWS[p.group]) {
+      const view = VIEWS[p.group].some(function (v) { return v.id === p.view; }) ? p.view : VIEWS[p.group][0].id;
+      return { group: p.group, view: view };
+    }
+    /* A view id on its own is enough to find its group. */
+    const owners = Object.keys(VIEWS).filter(function (g) {
+      return VIEWS[g].some(function (v) { return v.id === p.view; });
+    });
+    if (owners.length) {
+      const group = owners[0];
+      return { group: group, view: p.view };
+    }
+    if (p.tab && LEGACY[p.tab]) return { group: LEGACY[p.tab][0], view: LEGACY[p.tab][1] };
+    return { group: 'sales', view: 'overview' };
+  }
+
+  /* §1: every group opens with one combined summary of the figures that its
+     own drill-downs also show. The numbers come from the same shared
+     calculations, so a figure in the summary always matches the figure in
+     the drill-down below it. */
+  function groupSummary(group, r) {
+    if (!r.ok) {
+      return UI.card({
+        title: 'Group summary',
+        body: UI.empty('The period is not valid, so no summary can be calculated. Fix the dates and apply the range again.')
+      });
+    }
+    const label = (GROUPS.filter(function (g) { return g.id === group; })[0] || GROUPS[0]).label;
+    let body;
+    if (group === 'inventory') body = inventorySummary(r);
+    else if (group === 'staff') body = staffSummary(r);
+    else body = salesSummary(r);
+    return UI.card({
+      title: label + ' summary',
+      subtitle: 'The headline figures of every report in this group, for the selected period.',
+      body: body
+    });
+  }
+
+  function salesSummary(r) {
+    const rev = Rules.revenue(r.from, r.to);
+    const col = Rules.collections(r.from, r.to);
+    const material = materialCostIn(r.from, r.to);
+    const gp = grossProfit(rev.totalMMK, material);
+    const rule = Store.state.commissionRule;
+    const preview = rule ? Rules.commissionPreview(rule, r.from, r.to) : { configured: false, totalMMK: null };
+    const completed = completedJobsIn(r.from, r.to).length;
+    const redo = redoJobsIn(r.from, r.to).length;
+
+    return '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Receipt revenue', value: Util.mmk(rev.totalMMK) + ' MMK', tone: 'blue', icon: 'receipt',
+        sub: 'Finalised receipts plus charge corrections in the period'
+      }) +
+      UI.kpi({
+        label: 'Collections', value: Util.mmk(col.totalMMK) + ' MMK', tone: 'green', icon: 'wallet',
+        sub: 'Signed payments, refunds and method corrections'
+      }) +
+      UI.kpi({
+        label: 'Estimated gross profit', value: gp.complete ? (Util.mmk(gp.valueMMK) + ' MMK') : 'Incomplete',
+        tone: gp.complete ? 'green' : 'amber', icon: 'chart',
+        sub: gp.complete
+          ? 'Receipt revenue minus snapshotted material cost ' + Util.mmk(material.costMMK) + ' MMK'
+          : 'Missing material cost snapshot — not estimated as zero'
+      }) +
+      '</div>' +
+      '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Commission (separate)', value: preview.configured ? (Util.mmk(preview.totalMMK) + ' MMK') : 'Not configured',
+        tone: preview.configured ? 'grey' : 'amber', icon: 'users',
+        sub: preview.configured ? 'Illustrative rule — never added to revenue' : 'No commission rule is set'
+      }) +
+      UI.kpi({
+        label: 'Jobs completed', value: String(completed), tone: 'blue', icon: 'checkCircle',
+        sub: 'Completed inside the period'
+      }) +
+      UI.kpi({
+        label: 'Redo jobs', value: String(redo), tone: redo ? 'orange' : 'grey', icon: 'refresh',
+        sub: 'Comeback jobs created in the period'
+      }) +
+      '</div>';
+  }
+
+  function inventorySummary(r) {
+    const stock = stockPosition();
+    const movements = movementsIn(r.from, r.to);
+    const usage = usageIn(r.from, r.to);
+    const issued = Util.sum(usage, function (u) { return u.quantity; });
+    const material = materialCostIn(r.from, r.to);
+
+    return '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Estimated stock value', value: Util.mmk(stock.totalValueMMK) + ' MMK', tone: 'blue', icon: 'box',
+        sub: 'On hand multiplied by the latest purchase cost — an estimate, not a valuation'
+      }) +
+      UI.kpi({
+        label: 'Items tracked', value: String(stock.items.length), tone: 'grey', icon: 'archive',
+        sub: 'Every item the workshop stocks'
+      }) +
+      UI.kpi({
+        label: 'Low stock items', value: String(stock.lowStock.length), tone: stock.lowStock.length ? 'amber' : 'green',
+        icon: 'package', sub: 'At or below the reorder level'
+      }) +
+      '</div>' +
+      '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Movements in period', value: String(movements.length), tone: 'grey', icon: 'refresh',
+        sub: 'Issues, returns and adjustments inside the period'
+      }) +
+      UI.kpi({
+        label: 'Quantity issued', value: Util.qty(issued), tone: 'blue', icon: 'box',
+        sub: 'Parts and oil issued to jobs in the period'
+      }) +
+      UI.kpi({
+        label: 'Material cost', value: material.missing ? 'Incomplete' : (Util.mmk(material.costMMK) + ' MMK'),
+        tone: material.missing ? 'amber' : 'grey', icon: 'package',
+        sub: 'Snapshotted when the material was issued'
+      }) +
+      '</div>';
+  }
+
+  function staffSummary(r) {
+    const rule = Store.state.commissionRule;
+    const data = commissionJobs(rule, r.from, r.to);
+    const staff = commissionStaff(data.rows);
+    const earned = Util.sum(staff, function (s) { return s.earnedMMK; });
+    const rev = Rules.revenue(r.from, r.to);
+    const material = materialCostIn(r.from, r.to);
+    const gp = grossProfit(rev.totalMMK, material);
+    const payouts = Store.state.commissionPayouts || [];
+    const paidTotal = Util.sum(payouts, function (p) { return p.amountMMK || 0; });
+
+    let contribution = { complete: false, valueMMK: null };
+    if (gp.complete && data.preview.configured) {
+      contribution = { complete: true, valueMMK: rev.totalMMK - material.costMMK - earned };
+    }
+
+    return '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Commission earned', value: data.preview.configured ? (Util.mmk(earned) + ' MMK') : 'Not configured',
+        tone: data.preview.configured ? 'orange' : 'amber', icon: 'users',
+        sub: data.preview.configured ? 'Earned in the period — not yet paid out' : 'No commission rule is set'
+      }) +
+      UI.kpi({
+        label: 'Paid out', value: Util.mmk(paidTotal) + ' MMK', tone: 'blue', icon: 'wallet',
+        sub: 'Payouts recorded in this session'
+      }) +
+      UI.kpi({
+        label: 'Outstanding', value: Util.mmk(earned - paidTotal) + ' MMK', tone: 'grey', icon: 'clock',
+        sub: 'Earned minus paid out'
+      }) +
+      '</div>' +
+      '<div class="grid-3">' +
+      UI.kpi({
+        label: 'Staff earning commission', value: String(staff.length), tone: 'blue', icon: 'users2',
+        sub: 'Staff with a share in the period'
+      }) +
+      UI.kpi({
+        label: 'Contribution after commission', value: contribution.complete ? (Util.mmk(contribution.valueMMK) + ' MMK') : 'Incomplete',
+        tone: contribution.complete ? 'green' : 'amber', icon: 'chart',
+        sub: 'Revenue − material cost − commission'
+      }) +
+      UI.kpi({
+        label: 'Receipt revenue', value: Util.mmk(rev.totalMMK) + ' MMK', tone: 'green', icon: 'receipt',
+        sub: 'The revenue the commission is taken from'
+      }) +
+      '</div>';
+  }
+
+  function tabBody(view, r, ctx) {
+    if (!r.ok) return rangeError(r);
+    const body = viewHasData(view, r)
+      ? viewContent(view, r, ctx)
+      : noData(r, view);
+    return body + (view === 'overview' ? presetCard(ctx) : '');
+  }
+
+  function viewContent(view, r, ctx) {
+    if (view === 'services') return servicesTab(r);
+    if (view === 'stock') return inventoryTab(r);
+    if (view === 'commission') return commissionTab(r);
+    if (view === 'promotions') return promotionsTab(r);
+    if (view === 'redo') return redoTab(r);
     return overviewTab(r, ctx);
   }
 
@@ -1191,16 +1366,34 @@
           });
       }
       const r = rangeOf(ctx);
-      const p = (ctx.params || {});
-      const tab = TABS.some(function (t) { return t.id === p.tab; }) ? p.tab : 'overview';
-      return UI.pageHeader({
+      const gv = resolveGroupView(ctx);
+      const views = VIEWS[gv.group];
+      /* One message per selected view: a broken period is an error, an empty
+         period is a plain answer. A group summary with zeros is not shown
+         next to a period that has nothing in it, and a broken period shows
+         the error alone — never a table of zeros beside it. */
+      const empty = r.ok && !viewHasData(gv.view, r);
+      let out = UI.pageHeader({
         title: 'Reports and commission',
-        subtitle: 'Simulated figures for the demo workshop state. Nothing on this screen is a real business record.'
+        subtitle: 'Simulated figures for the demo workshop. Nothing here is a real business record.'
       }) +
         dateBasis(r) +
-        UI.tabs(TABS, tab, 'reports') +
-        filterCard(r) +
-        '<div role="tabpanel" aria-label="Report section">' + tabBody(tab, r, ctx) + '</div>';
+        UI.tabs(GROUPS.map(function (g) { return { id: g.id, label: g.label }; }), gv.group, 'reports', 'group') +
+        filterCard(r);
+
+      if (!r.ok) {
+        /* The period cannot be reported. The filter stays so the dates can be
+           corrected, but no figure and no table is shown for it. */
+        return out + '<div role="tabpanel" aria-label="Report error">' + rangeError(r) + '</div>';
+      }
+
+      out += (empty ? '' : '<div role="tabpanel" aria-label="Report group summary">' + groupSummary(gv.group, r) + '</div>');
+      out += (views.length > 1
+        ? UI.tabs(views.map(function (v) { return { id: v.id, label: v.label }; }), gv.view, 'report-view', 'view')
+        : '<h2 class="section-head">' + E(views[0].label) + '</h2>');
+      out += '<div role="tabpanel" aria-label="Report section">' +
+        (empty ? noData(r, gv.view) : tabBody(gv.view, r, ctx)) + '</div>';
+      return out;
     },
     mount: function () { /* the shell already handles the tab buttons */ },
     /* Small read-only helpers used by js/act-reports.js so the payout

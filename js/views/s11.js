@@ -22,8 +22,7 @@
 
       let out = UI.pageHeader({
         title: 'Receive stock',
-        subtitle: 'A goods receipt raises the stock balance by exactly the received quantity.',
-        actions: UI.btn('Back to inventory', { action: 'nav', variant: 'secondary', attrs: { nav: 'S10', params: JSON.stringify({ tab: 'inventory' }) } })
+        subtitle: 'A goods receipt raises the stock balance by exactly the received quantity.'
       });
 
       if (po) {

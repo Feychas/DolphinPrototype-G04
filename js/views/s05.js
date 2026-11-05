@@ -90,12 +90,11 @@
         })
       });
 
-      const unassigned = state.jobs.filter(function (j) {
-        return j.lifecycleStatus === 'Open' && j.workStatus !== 'Completed' && j.workStatus !== 'Cancelled' && !j.bayId;
-      });
+      const unassigned = Rules.bayEligibleJobs().filter(function (j) { return !j.bayId; });
       if (unassigned.length && !mechanicOnly) {
         out += UI.card({
           title: 'Waiting for a bay',
+          subtitle: 'A live job without a bay. Work cannot start until a bay and a mechanic are assigned.',
           body: UI.table({
             label: 'Jobs without a bay',
             head: ['Job', 'Vehicle', 'Service', 'Status', 'Action'],
@@ -106,7 +105,30 @@
                 E(v ? v.plate : '—'),
                 E(Rules.jobServiceLabel(j)),
                 { html: UI.statusBadge(j.workStatus) },
-                canAssign ? UI.btn('Assign', { action: 'bay.assign', variant: 'secondary', attrs: { jobId: j.id } }) : { html: '—' }
+                canAssign ? { html: UI.btn('Assign', { action: 'bay.assign', variant: 'secondary', attrs: { jobId: j.id } }) } : { html: '—' }
+              ];
+            })
+          })
+        });
+      }
+
+      const movable = Rules.bayEligibleJobs().filter(function (j) { return j.bayId; });
+      if (movable.length && !mechanicOnly && canAssign) {
+        out += UI.card({
+          title: 'In a bay',
+          subtitle: 'A Manager can move a job to another bay — this is also how a waiting-for-parts job is released.',
+          body: UI.table({
+            label: 'Jobs in a bay',
+            head: ['Job', 'Vehicle', 'Bay', 'Status', 'Action'],
+            rows: movable.map(function (j) {
+              const v = Store.vehicle(j.vehicleId);
+              const bay = j.bayId ? Store.bay(j.bayId) : null;
+              return [
+                { html: UI.link(j.id, 'S06', { jobId: j.id }) },
+                E(v ? v.plate : '—'),
+                E(bay ? bay.name : '—'),
+                { html: UI.statusBadge(j.workStatus) },
+                { html: UI.btn('Move', { action: 'bay.assign', variant: 'quiet', attrs: { jobId: j.id } }) }
               ];
             })
           })

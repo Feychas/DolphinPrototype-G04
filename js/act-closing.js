@@ -251,6 +251,43 @@
     return global.Store.job(v.jobId) || S.defaultCorrectionJob({ params: global.Store.params });
   }
 
+  /* What the user has typed is kept in the store draft. A redraw — changing
+     the job, for example — reads it back, so the entered values survive. */
+  function saveDraft() {
+    const form = global.Util.el('form[data-form="correction.save"]');
+    if (!form) return;
+    const v = values(form);
+    global.Store.draft = global.Store.draft || {};
+    global.Store.draft.correction = {
+      jobId: v.jobId || '',
+      type: v.type || 'charge',
+      reason: v.reason === undefined ? '' : v.reason,
+      chargeDeltaMMK: v.chargeDeltaMMK,
+      refundAmountMMK: v.refundAmountMMK,
+      refundMethod: v.refundMethod || 'Cash',
+      reverseMethod: v.reverseMethod || 'Cash',
+      reverseAmountMMK: v.reverseAmountMMK,
+      newMethod: v.newMethod || 'KBZPay',
+      newAmountMMK: v.newAmountMMK,
+      walletReference: v.walletReference === undefined ? '' : v.walletReference,
+      walletVerified: !!v.walletVerified
+    };
+  }
+
+  global.Actions.live['correction.draft'] = function () {
+    saveDraft();
+  };
+
+  /* "Edit correction" and "Back to edit" both go back to the fields with the
+     values that were entered still in place. */
+  global.Actions.click['correction.edit'] = function () {
+    const holder = global.Util.el('#correction-fields');
+    const target = global.Util.el('#correction-type');
+    if (holder && holder.scrollIntoView) holder.scrollIntoView({ block: 'start' });
+    if (target && target.focus) target.focus();
+    global.App.toast('Change the correction — the preview updates as you type.', 'info');
+  };
+
   function refreshCorrectionPreview() {
     const form = global.Util.el('form[data-form="correction.save"]');
     if (!form) return;
@@ -264,10 +301,11 @@
     }).join('<br>');
     preview.innerHTML = (problems
       ? global.UI.banner('warn', 'This correction cannot be confirmed yet', problems)
-      : '') + S.previewHtml(job, built.correction);
+      : '') + S.previewHtml(job, built.correction, { invalid: Object.keys(built.errors || {}).length > 0 });
   }
 
   global.Actions.live['correction.preview'] = function () {
+    saveDraft();
     refreshCorrectionPreview();
   };
 
@@ -275,6 +313,7 @@
     const input = inputOf(el);
     const id = input ? input.value : '';
     if (!id) return;
+    saveDraft();
     global.Store.params = global.Store.params || {};
     global.Store.params.jobId = id;
     global.App.render();
@@ -314,6 +353,7 @@
       set('correction-reason', s.reason || '');
     }
     refreshCorrectionPreview();
+    saveDraft();
     global.App.toast(kind === 'charge'
       ? 'Sample A loaded — check the preview, then confirm the correction.'
       : 'Sample B loaded — tick “Verified (demo)” before you confirm.', 'info');
@@ -323,6 +363,12 @@
   global.Actions.click['correction.sampleMethod'] = function () { fillSample('method'); };
 
   global.Actions.submit['correction.save'] = function (form) {
+    /* Only an Owner or a Manager may confirm a correction. The screen is
+       already hidden from other roles; this is the second lock. */
+    if (!global.Store.isManagerial()) {
+      global.App.toast('Only the Owner or a Manager can confirm a payment correction.', 'warn');
+      return { ok: false };
+    }
     const v = values(form);
     const job = global.Store.job(v.jobId) || correctionJob();
     if (!job) return fail(form, { jobId: 'Choose a job that already has a receipt.' }, 'The correction was not applied.');
@@ -378,6 +424,9 @@
       global.Util.mmkSigned(balance) + ' MMK.');
 
     const closeCheck = global.Rules.canClose(job);
+    /* The typed correction is spent — the next one starts from the samples. */
+    global.Store.draft = global.Store.draft || {};
+    global.Store.draft.correction = {};
     return ok('Correction ' + record.id + ' applied. Receipt ' + rc.id + ' is kept as issued. ' +
       (balance !== 0
         ? 'The effective balance is ' + global.Util.mmkSigned(balance) + ' MMK — the job is now Review required and cannot be closed.'

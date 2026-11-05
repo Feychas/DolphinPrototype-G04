@@ -142,22 +142,9 @@
         })
       });
 
-      out += UI.card({
-        title: 'Demo controls',
-        subtitle: 'Presentation controls for the walkthrough. Nothing here is authentication.',
-        body: '<div class="row-between">' +
-          '<div class="row">' +
-          '<label class="sr-only" for="dash-role">View as role</label>' +
-          '<select id="dash-role" data-change="dashboard.role">' +
-          Store.users().map(u => '<option value="' + E(u.id) + '"' + (u.id === ctx.user.id ? ' selected' : '') + '>' + E(u.name) + ' — ' + E(u.role) + '</option>').join('') +
-          '</select>' +
-          '<span class="muted small">Scenario ' + E(ctx.scenario.id) + ' · ' + E(ctx.scenario.label) + '</span>' +
-          '</div>' +
-          '<div class="row">' +
-          UI.btn('Reset scenario', { action: 'demo.resetScenario', variant: 'secondary', icon: 'refresh' }) +
-          '</div></div>' +
-          '<p class="note" style="margin-top:12px">Switching the role keeps every saved change. Refreshing the page starts again at P01.</p>'
-      });
+      /* The demo controls live in the top bar on every screen, so they are not
+         repeated here. */
+      out += '<p class="note">Demo data only. Use <strong>Demo controls</strong> in the top bar to load another scenario or reset this one.</p>';
 
       return out;
     }

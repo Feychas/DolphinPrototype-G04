@@ -197,19 +197,27 @@
       subtitle: 'Every saved demo note, newest first. A note records a contact attempt only.',
       body: UI.table({
         label: 'Follow-up notes',
-        head: ['Recorded', 'Job', 'Plate', 'Channel', 'Outcome', 'Next action', 'By'],
+        head: ['Recorded', 'Job', 'Plate', 'Channel', 'Outcome'],
         rows: rows.map(function (f) {
           const job = Store.job(f.jobId);
           const v = job ? vehicleOf(job) : null;
-          return [
-            Util.fmtDateTime(f.at),
-            job ? UI.link(f.jobId, 'S06', { jobId: f.jobId }) : f.jobId,
-            v ? v.plate : '—',
-            f.channel,
-            f.outcome,
-            (f.nextAction ? f.nextAction : '—') + (f.nextActionDate ? ' (' + f.nextActionDate + ')' : ''),
-            Store.staffName(f.actor)
-          ];
+          /* The note, the next action and who wrote it open under the row. */
+          return {
+            cells: [
+              Util.fmtDateTime(f.at),
+              /* a link has to be marked as raw HTML — a plain cell is escaped
+                 and the markup would be shown as text */
+              job ? { html: UI.link(f.jobId, 'S06', { jobId: f.jobId }) } : f.jobId,
+              v ? v.plate : '—',
+              f.channel,
+              f.outcome
+            ],
+            detail: UI.dl([
+              ['Next action', (f.nextAction ? f.nextAction : '—') + (f.nextActionDate ? ' (' + f.nextActionDate + ')' : '')],
+              ['Note', f.note || '—'],
+              ['Recorded by', Store.staffName(f.actor)]
+            ])
+          };
         }),
         empty: 'No follow-up notes have been recorded yet.'
       })

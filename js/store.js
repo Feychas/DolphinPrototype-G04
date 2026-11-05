@@ -15,6 +15,7 @@
     role: 'Cashier',
     userId: null,
     dirty: false,          /* a view has unsaved form input */
+    draft: {},            /* unsaved form input, kept while a view redraws */
     pendingScreen: null,   /* navigation held back by an unsaved-form guard */
     lastLanding: {},       /* per-role landing screen */
 
@@ -50,6 +51,7 @@
       this.screen = sc.startScreen;
       this.params = {};
       this.dirty = false;
+      this.draft = {};
       if (!opts.silent) global.App && global.App.onStateReplaced && global.App.onStateReplaced();
       return true;
     },
@@ -61,6 +63,7 @@
       this.screen = sc.startScreen;
       this.params = {};
       this.dirty = false;
+      this.draft = {};
       return true;
     },
 
@@ -73,6 +76,7 @@
       this.screen = this.scenario().startScreen;
       this.params = {};
       this.dirty = false;
+      this.draft = {};
       return true;
     },
 

@@ -25,8 +25,7 @@
 
       let out = UI.pageHeader({
         title: 'Customer approval',
-        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : ''),
-        actions: UI.btn('Back to job', { action: 'nav', variant: 'secondary', attrs: { nav: 'S06', params: JSON.stringify({ jobId: job.id }) } })
+        subtitle: job.id + ' · ' + (vehicle ? vehicle.plate : '') + ' · ' + (customer ? customer.name : '')
       });
 
       if (!quotes.length) {
@@ -55,9 +54,9 @@
               { html: Util.mmk(t.totalMMK), className: 'num' },
               { html: Util.mmk(t.repairApprovalBasisMMK), className: 'num' },
               q.approval
-                ? E(q.approval.decision) + '<br><span class="muted small">' + E(q.approval.channel || '') +
-                  (q.approval.note ? ' · ' + E(q.approval.note) : '') + '</span>'
-                : '<span class="muted">Not recorded</span>',
+                ? { html: E(q.approval.decision) + '<br><span class="muted small">' + E(q.approval.channel || '') +
+                  (q.approval.note ? ' · ' + E(q.approval.note) : '') + '</span>' }
+                : { html: '<span class="muted">Not recorded</span>' },
               { html: UI.link('Open', 'S08', { jobId: job.id, version: q.version }) }
             ];
           })
@@ -171,7 +170,7 @@
             '</select><p class="field-hint">The channel is recorded as a simulated contact.</p></div>' +
             '<div class="field"><label for="ap-note">Contact note</label>' +
             '<textarea id="ap-note" name="note" rows="2" placeholder="What the customer said (demo)"></textarea></div>' +
-            '<div class="field"><label class="check"><input type="checkbox" name="confirmed"> ' +
+            '<div class="field"><label class="check" for="ap-confirmed"><input type="checkbox" id="ap-confirmed" name="confirmed"> ' +
             '<span>I confirm the customer decision was taken in this session <span class="req" aria-hidden="true">*</span></span></label></div>' +
             '<div class="form-actions">' +
             UI.btn('Record decision', { variant: 'primary', icon: 'check', type: 'submit' }) +

@@ -380,7 +380,7 @@
 
   function typeChooser(def) {
     return '<div class="radio-row">' + TYPES.map(function (t) {
-      return '<label class="check"><input type="radio" name="importType" value="' + E(t.id) + '"' +
+      return '<label class="check" for="import-type-' + E(t.id) + '"><input type="radio" id="import-type-' + E(t.id) + '" name="importType" value="' + E(t.id) + '"' +
         ' data-live="import.type"' + (t.id === def.id ? ' checked' : '') + '>' +
         '<span>' + E(t.label) + '</span></label>';
     }).join('') + '</div>';
@@ -408,16 +408,16 @@
         const name = 'choice-row-' + row.index;
         if (def.historical) {
           decision = '<div class="radio-row">' +
-            '<label class="check"><input type="radio" name="' + name + '" value="skip" checked disabled>' +
+            '<label class="check" for="' + name + '-skip"><input type="radio" id="' + name + '-skip" name="' + name + '" value="skip" checked disabled>' +
             '<span>Skip</span></label></div>' +
             '<span class="muted small">The existing record ' + E(row.existingId) +
             ' is kept as it is — history is never merged or overwritten.</span>';
         } else {
           decision = '<div class="radio-row">' +
-            '<label class="check"><input type="radio" name="' + name + '" value="skip"' +
+            '<label class="check" for="' + name + '-skip"><input type="radio" id="' + name + '-skip" name="' + name + '" value="skip"' +
             ' data-live="import.choice" data-type="' + E(def.id) + '" data-row-index="' + row.index + '"' +
             (row.choice === 'merge' ? '' : ' checked') + '><span>Skip</span></label>' +
-            '<label class="check"><input type="radio" name="' + name + '" value="merge"' +
+            '<label class="check" for="' + name + '-merge"><input type="radio" id="' + name + '-merge" name="' + name + '" value="merge"' +
             ' data-live="import.choice" data-type="' + E(def.id) + '" data-row-index="' + row.index + '"' +
             (row.choice === 'merge' ? ' checked' : '') + '><span>Merge</span></label>' +
             '</div><span class="muted small">' + (row.choice === 'merge'
